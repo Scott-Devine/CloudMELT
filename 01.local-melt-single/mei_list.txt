@@ -1,0 +1,3 @@
+/Users/jcrabtree/MELT/MELTv2.1.5/me_refs/1KGP_Hg19/ALU_MELT.zip
+/Users/jcrabtree/MELT/MELTv2.1.5/me_refs/1KGP_Hg19/LINE1_MELT.zip
+/Users/jcrabtree/MELT/MELTv2.1.5/me_refs/1KGP_Hg19/SVA_MELT.zip
