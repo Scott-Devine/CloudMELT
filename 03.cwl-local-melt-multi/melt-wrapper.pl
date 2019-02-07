@@ -22,16 +22,15 @@ for (my $i = 0;$i < $num_args; ++$i) {
 
     if ($ARGV[$i] eq '-bamfile') {
 	my $bamfile = $ARGV[$i+1];
-	# NOTE: these ln commands will succeed even if the source file does not exist
-	# link BAM
-	my $ln_cmd1 = ["ln", "-s", $bamfile, "."];
-	my $ln_exitval1 = &run_sys_command(\@$ln_cmd1);
-	exit($ln_exitval1) if $ln_exitval1 != 0;
-	# link BAI
-	my $ln_cmd2 = ["ln", "-s", $bamfile . ".bai", "."];
-	my $ln_exitval2 = &run_sys_command(\@$ln_cmd2);
-	exit($ln_exitval2) if $ln_exitval2 != 0;
 	push(@$new_args, basename($bamfile));
+
+	foreach my $suffix ('', '.bai', '.disc', '.disc.bai', '.fq') {
+	    # NOTE: the ln command will succeed even if the source file does not exist
+	    my $ln_cmd = ["ln", "-s", $bamfile . $suffix, "."];
+	    my $ln_exitval = &run_sys_command(\@$ln_cmd);
+	    exit($ln_exitval) if $ln_exitval != 0;
+	}
+
 	# skip the next argument
 	++$i;
     }
