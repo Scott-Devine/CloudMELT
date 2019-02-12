@@ -41,7 +41,7 @@ for (my $i = 0;$i < $num_args; ++$i) {
 	my $bamfile = $ARGV[$i+1];
 	push(@$new_args, basename($bamfile));
 
-	foreach my $suffix (@$RUNTIME_SUFFIXES->{$melt_runtime}) {
+	foreach my $suffix (@{$RUNTIME_SUFFIXES->{$melt_runtime}}) {
 	    # NOTE: the ln command will succeed even if the source file does not exist
 	    my $ln_cmd = ["ln", "-s", $bamfile . $suffix, "."];
 	    my $ln_exitval = &run_sys_command(\@$ln_cmd);
