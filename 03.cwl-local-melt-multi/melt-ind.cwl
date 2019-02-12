@@ -8,8 +8,13 @@ requirements:
     tmpdirMin: 20000
     outdirMin: 5000
     coresMin: 1
+  InitialWorkDirRequirement:
+    listing:
+      - $(inputs.reads_bam_file)
+      - $(inputs.disc_bam_file)
+      - $(inputs.fastq_file)
 
-baseCommand: ["/Users/jcrabtree/MELT/03.cwl-local-melt-multi/melt-wrapper.pl", java, "-Xmx6G"]
+baseCommand: ["java", "-Xmx6G"]
 stdout: melt-ind-stdout.txt
 stderr: melt-ind-stderr.txt
 inputs:
@@ -30,7 +35,7 @@ inputs:
       position: 2
       prefix: -a
   excluded_chromosomes:
-    type: string
+    type: string?
     inputBinding:
       position: 3
       prefix: -b
@@ -41,9 +46,12 @@ inputs:
       prefix: -bamfile
     secondaryFiles:
      - .bai
-     - .disc
-     - .disc.bai
-     - .fq
+  disc_bam_file:
+    type: File
+    secondaryFiles:
+     - .bai
+  fastq_file: 
+    type: File
   bowtie2_path:
     type: File?
     inputBinding:

@@ -20,19 +20,29 @@ inputs:
   read_length: int?
   genes_bed_file: File
   max_reads_in_mem: int?
-  mei_list: File
-  working_dir: Directory?
+  transposon_zip_file: File
 
 outputs:
-  dr_bam_file:
-    type: File
-    outputSource: preprocess/dr_bam_file
-  dr_bai_file:
-    type: File
-    outputSource: preprocess/dr_bai_file
-  fastq_file:
-    type: File
-    outputSource: preprocess/fastq_file
+  aligned_bam_bai_files:
+    type: 
+      type: array
+      items: File
+    outputSource: indiv_analysis/aligned_bam_bai_files
+  hum_breaks_bam:
+    type: 
+      type: array
+      items: File
+    outputSource: indiv_analysis/hum_breaks_bam_bai_files
+  pulled_bam:
+    type: 
+      type: array
+      items: File
+    outputSource: indiv_analysis/pulled_bam_bai_files
+  tmp_bed:
+    type: 
+      type: array
+      items: File
+    outputSource: indiv_analysis/bed_files
 
 steps:
   preprocess:
@@ -41,7 +51,28 @@ steps:
       melt_jar_file: melt_jar_file
       ref_fasta_file: ref_fasta_file
       reads_bam_file: reads_bam_file
-    out: [dr_bam_file, dr_bai_file, fastq_file]
+    out: [dr_bam_file, fastq_file]
+
+  indiv_analysis:
+    run: melt-ind.cwl
+    in:
+      melt_jar_file: melt_jar_file
+      bwa_used: bwa_used
+      excluded_chromosomes: excluded_chromosomes
+      reads_bam_file: reads_bam_file
+      disc_bam_file: preprocess/dr_bam_file
+      fastq_file: preprocess/fastq_file
+      bowtie2_path: bowtie2_path
+      coverage_estimate:
+        default: 8
+      min_contig_len: min_contig_len
+      exome_mode: exome_mode
+      ref_fasta_file: ref_fasta_file
+      phred64: phred64
+      read_length: read_length
+      transposon_zip_file: transposon_zip_file
+      max_reads_in_mem: max_reads_in_mem
+    out: [aligned_bam_bai_files, hum_breaks_bam_bai_files, pulled_bam_bai_files, bed_files]
 
 
 

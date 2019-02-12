@@ -7,8 +7,11 @@ requirements:
     tmpdirMin: 20000
     outdirMin: 5000
     coresMin: 1
+  InitialWorkDirRequirement:
+    listing:
+      - $(inputs.reads_bam_file)
 
-baseCommand: ["/Users/jcrabtree/MELT/03.cwl-local-melt-multi/melt-wrapper.pl", java, "-Xmx2G"]
+baseCommand: [java, "-Xmx2G"]
 stdout: melt-pre-stdout.txt
 stderr: melt-pre-stderr.txt
 inputs:
@@ -45,10 +48,7 @@ outputs:
     type: File
     outputBinding: 
       glob: $(inputs.reads_bam_file.basename).disc
-  dr_bai_file:
-    type: File
-    outputBinding:
-      glob: $(inputs.reads_bam_file.basename).disc.bai
+    secondaryFiles: ['.bai']
   fastq_file:
     type: File
     outputBinding:
