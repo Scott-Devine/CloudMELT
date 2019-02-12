@@ -14,17 +14,34 @@
 use strict;
 use File::Basename;
 
+## globals
+
+# the suffixes of the secondary files that need to be symlinked into the working
+# directory along with the primary BAM file
+my $RUNTIME_SUFFIXES = {
+    'Preprocess' => ['','.bai'],
+    'IndivAnalysis' => ['','.bai','.disc','.disc.bai','.fq'],
+};
+
+## main program
+
+# track which MELT Runtime is being invoked
+my $melt_runtime = undef;
+
 my $new_args = [];
 my $num_args = scalar(@ARGV);
 
 for (my $i = 0;$i < $num_args; ++$i) {
     push(@$new_args, $ARGV[$i]);
 
-    if ($ARGV[$i] eq '-bamfile') {
+    if ($ARGV[$i] =~ /^Preprocess|IndivAnalysis$/) {
+	$melt_runtime = $ARGV[$i];
+    }
+    elsif ($ARGV[$i] eq '-bamfile') {
 	my $bamfile = $ARGV[$i+1];
 	push(@$new_args, basename($bamfile));
 
-	foreach my $suffix ('', '.bai', '.disc', '.disc.bai', '.fq') {
+	foreach my $suffix (@$RUNTIME_SUFFIXES->{$melt_runtime}) {
 	    # NOTE: the ln command will succeed even if the source file does not exist
 	    my $ln_cmd = ["ln", "-s", $bamfile . $suffix, "."];
 	    my $ln_exitval = &run_sys_command(\@$ln_cmd);
