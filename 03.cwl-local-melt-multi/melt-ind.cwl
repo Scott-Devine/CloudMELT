@@ -55,7 +55,7 @@ inputs:
       position: 6
       prefix: -c
   min_contig_len:
-     type: int
+     type: int?
      default: 1000000
      inputBinding:
        position: 7
@@ -79,7 +79,7 @@ inputs:
       position: 10
       prefix: -q
   read_length:
-    type: int
+    type: int?
     default: 100
     inputBinding:
       position: 11
@@ -90,7 +90,7 @@ inputs:
       position: 12
       prefix: -t
   max_reads_in_mem:
-    type: int
+    type: int?
     default: 5000
     inputBinding:
       position: 13
@@ -130,6 +130,3 @@ outputs:
       items: File
     outputBinding: 
       glob: "*.tmp.bed"
-
-
-
