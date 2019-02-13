@@ -3,7 +3,7 @@ class: CommandLineTool
 
 requirements:
   ResourceRequirement:
-    ramMin: 3825
+    ramMin: 2000
     tmpdirMin: 20000
     outdirMin: 5000
     coresMin: 1
@@ -12,7 +12,7 @@ requirements:
       - $(inputs.reads_bam_file)
       - $(inputs.pre_geno_file)
 
-baseCommand: ["java", "-Xmx4G"]
+baseCommand: ["java", "-Xmx2G"]
 
 stdout: melt-gen-stdout.txt
 stderr: melt-gen-stderr.txt
