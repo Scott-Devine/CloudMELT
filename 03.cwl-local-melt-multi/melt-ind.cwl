@@ -2,7 +2,6 @@ cwlVersion: v1.0
 class: CommandLineTool
 
 requirements:
-
   ResourceRequirement:
     ramMin: 5725
     tmpdirMin: 20000
@@ -15,8 +14,10 @@ requirements:
       - $(inputs.fastq_file)
 
 baseCommand: ["java", "-Xmx6G"]
+
 stdout: melt-ind-stdout.txt
 stderr: melt-ind-stderr.txt
+
 inputs:
   melt_jar_file:
     type: File
@@ -114,27 +115,22 @@ outputs:
     type: stdout
   melt_ind_stderr:
     type: stderr
-  aligned_bam_bai_files:
-    type: 
-      type: array
-      items: File
+  aligned_bam_file:
+    type: File
     outputBinding: 
-      glob: "*aligned.final.sorted.bam*"
-  hum_breaks_bam_bai_files:
-    type:
-      type: array
-      items: File
+      glob: "*aligned.final.sorted.bam"
+    secondaryFiles: ['.bai']
+  hum_breaks_bam_file:
+    type: File
     outputBinding: 
-      glob: "*hum_breaks.sorted.bam*"
-  pulled_bam_bai_files:
-    type: 
-      type: array
-      items: File
+      glob: "*hum_breaks.sorted.bam"
+    secondaryFiles: ['.bai']
+  pulled_bam_file:
+    type: File
     outputBinding: 
-      glob: "*pulled.sorted.bam*"
-  bed_files:
-    type: 
-      type: array
-      items: File
+      glob: "*pulled.sorted.bam"
+    secondaryFiles: ['.bai']
+  tmp_bed_file:
+    type: File
     outputBinding: 
       glob: "*.tmp.bed"
