@@ -23,26 +23,18 @@ inputs:
   transposon_zip_file: File
 
 outputs:
-  aligned_bam_bai_files:
-    type: 
-      type: array
-      items: File
-    outputSource: indiv_analysis/aligned_bam_bai_files
+  aligned_bam_file:
+    type: File
+    outputSource: indiv_analysis/aligned_bam_file
   hum_breaks_bam:
-    type: 
-      type: array
-      items: File
-    outputSource: indiv_analysis/hum_breaks_bam_bai_files
+    type: File
+    outputSource: indiv_analysis/hum_breaks_bam_file
   pulled_bam:
-    type: 
-      type: array
-      items: File
-    outputSource: indiv_analysis/pulled_bam_bai_files
-  tmp_bed:
-    type: 
-      type: array
-      items: File
-    outputSource: indiv_analysis/bed_files
+    type: File
+    outputSource: indiv_analysis/pulled_bam_file
+  tmp_bed_file:
+    type: File
+    outputSource: indiv_analysis/tmp_bed_file
 
 steps:
   preprocess:
@@ -72,7 +64,7 @@ steps:
       read_length: read_length
       transposon_zip_file: transposon_zip_file
       max_reads_in_mem: max_reads_in_mem
-    out: [aligned_bam_bai_files, hum_breaks_bam_bai_files, pulled_bam_bai_files, bed_files]
+    out: [aligned_bam_file, hum_breaks_bam_file, pulled_bam_file, tmp_bed_file]
 
 
 

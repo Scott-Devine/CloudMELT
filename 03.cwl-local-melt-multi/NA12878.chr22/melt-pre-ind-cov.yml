@@ -1,17 +1,17 @@
 melt_jar_file:
   class: File
-  path: ../MELTv2.1.5/MELT.jar 
+  path: ../../MELTv2.1.5/MELT.jar 
 ref_fasta_file:
   class: File
-  path: ../reference/hs37d5.fa
+  path: ../../reference/hs37d5.fa
 reads_bam_file: 
   class: File
-  path: ../data/test-1/NA12878.mapped.ILLUMINA.bwa.CEU.low_coverage.20121211.bam
+  path: ../../data/test-2/NA12878.chr22.sorted.bam
 genes_bed_file: 
   class: File
-  path: ../MELTv2.1.5/add_bed_files/1KGP_Hg19/hg19.genes.bed
+  path: ../../MELTv2.1.5/add_bed_files/1KGP_Hg19/hg19.genes.bed
 excluded_chromosomes: hs37d5/NC_007605
 transposon_zip_file:
   class: File
-  path: ../MELTv2.1.5/me_refs/1KGP_Hg19/LINE1_MELT.zip
+  path: ../../MELTv2.1.5/me_refs/1KGP_Hg19/LINE1_MELT.zip
 
