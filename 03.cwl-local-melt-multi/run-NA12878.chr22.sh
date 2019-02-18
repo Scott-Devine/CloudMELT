@@ -1,9 +1,17 @@
 #!/bin/bash
 
 export RUNNER='toil-cwl-runner --retryCount 0'
+# Mac OS X - specific workaround
+export TMPDIR="/private${TMPDIR}"
 
 # verbose logging
 #$RUNNER --logDebug melt.cwl melt.yml
+
+# coverage
+$RUNNER melt-cov.cwl melt-cov.yml
+exit
+
+# WF1 - WF4
 
 # WF1. Preprocess - IndivAnalysis
 # TODO - add Coverage
@@ -19,5 +27,6 @@ export RUNNER='toil-cwl-runner --retryCount 0'
 #$RUNNER --retryCount 0 melt-gen.cwl NA12878.chr22/melt-gen.yml 
 
 # WF4. MakeVCF
-$RUNNER melt-vcf.cwl NA12878.chr22/melt-vcf.yml 
+#real	0m4.577s
+#$RUNNER melt-vcf.cwl NA12878.chr22/melt-vcf.yml 
 exit
