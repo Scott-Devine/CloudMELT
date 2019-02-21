@@ -26,12 +26,15 @@ outputs:
   aligned_bam_file:
     type: File
     outputSource: indiv_analysis/aligned_bam_file
-  hum_breaks_bam:
+    secondaryFiles: ['.bai']
+  hum_breaks_bam_file:
     type: File
     outputSource: indiv_analysis/hum_breaks_bam_file
-  pulled_bam:
+    secondaryFiles: ['.bai']
+  pulled_bam_file:
     type: File
     outputSource: indiv_analysis/pulled_bam_file
+    secondaryFiles: ['.bai']
   tmp_bed_file:
     type: File
     outputSource: indiv_analysis/tmp_bed_file
@@ -65,6 +68,3 @@ steps:
       transposon_zip_file: transposon_zip_file
       max_reads_in_mem: max_reads_in_mem
     out: [aligned_bam_file, hum_breaks_bam_file, pulled_bam_file, tmp_bed_file]
-
-
-

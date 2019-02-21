@@ -42,7 +42,7 @@ inputs:
        position: 3
        prefix: -d
   expected_insert_size:
-    type: int
+    type: int?
     default: 500
     inputBinding:
       position: 4

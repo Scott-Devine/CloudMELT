@@ -48,7 +48,7 @@ inputs:
     secondaryFiles:
      - .fai
   no_call_percent:
-    type: int
+    type: int?
     default: 25
     inputBinding:
       position: 5
@@ -65,8 +65,8 @@ inputs:
     inputBinding:
       position: 7
       prefix: -p
-  stdev_cutoff:
-    type: float
+  makevcf_stdev_cutoff:
+    type: float?
     default: 2.0
     inputBinding:
       position: 8

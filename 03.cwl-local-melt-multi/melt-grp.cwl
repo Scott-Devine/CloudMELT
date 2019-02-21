@@ -33,7 +33,7 @@ inputs:
     inputBinding:
       position: 2
       prefix: -a
-  stdev_cutoff:
+  group_stdev_cutoff:
      type: int?
      inputBinding:
        position: 3
