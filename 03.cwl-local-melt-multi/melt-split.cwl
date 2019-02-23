@@ -31,11 +31,15 @@ inputs:
   remove_ac0_sites: boolean?
   group_stdev_cutoff: int?
   makevcf_stdev_cutoff: float?
+  min_coverage: float?
 
 outputs:
   vcf_file:
     type: File
     outputSource: vcf/vcf_file
+  estimated_coverage:
+    type: float
+    outputSource: pre_ind_cov/estimated_coverage
 
 steps:
   pre_ind_cov:
@@ -54,7 +58,8 @@ steps:
       read_length: read_length
       transposon_zip_file: transposon_zip_file
       max_reads_in_mem: max_reads_in_mem
-    out: [aligned_bam_file, hum_breaks_bam_file, pulled_bam_file, tmp_bed_file]
+      min_coverage: min_coverage
+    out: [aligned_bam_file, hum_breaks_bam_file, pulled_bam_file, tmp_bed_file, estimated_coverage]
 
   grp:
     run: melt-grp.cwl

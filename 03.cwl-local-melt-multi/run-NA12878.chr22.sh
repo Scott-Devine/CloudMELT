@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export RUNNER='toil-cwl-runner --retryCount 0'
-# Mac OS X - specific workaround
+# Mac OS X - specific workaround for Docker tasks
 export TMPDIR="/private${TMPDIR}"
 
 # verbose logging

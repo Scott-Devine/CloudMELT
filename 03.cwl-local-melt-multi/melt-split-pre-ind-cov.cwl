@@ -24,6 +24,7 @@ inputs:
   genes_bed_file: File
   max_reads_in_mem: int?
   transposon_zip_file: File
+  min_coverage: float?
 
 outputs:
   aligned_bam_file:
@@ -58,6 +59,7 @@ steps:
     run: melt-cov.cwl
     in:
       bam_file: reads_bam_file
+      min_coverage: min_coverage
     out: [estimated_coverage]
 
   indiv_analysis:
