@@ -1,6 +1,9 @@
 cwlVersion: v1.0
 class: Workflow
 
+requirements:
+  SubworkflowFeatureRequirement: {}
+
 inputs:
   melt_jar_file: File
   bwa_used: boolean?
@@ -38,6 +41,9 @@ outputs:
   tmp_bed_file:
     type: File
     outputSource: indiv_analysis/tmp_bed_file
+  estimated_coverage:
+    type: float
+    outputSource: coverage/estimated_coverage 
 
 steps:
   preprocess:
@@ -47,6 +53,12 @@ steps:
       ref_fasta_file: ref_fasta_file
       reads_bam_file: reads_bam_file
     out: [dr_bam_file, fastq_file]
+
+  coverage:
+    run: melt-cov.cwl
+    in:
+      bam_file: reads_bam_file
+    out: [estimated_coverage]
 
   indiv_analysis:
     run: melt-ind.cwl
@@ -58,8 +70,7 @@ steps:
       disc_bam_file: preprocess/dr_bam_file
       fastq_file: preprocess/fastq_file
       bowtie2_path: bowtie2_path
-      coverage_estimate:
-        default: 8
+      coverage_estimate: coverage/estimated_coverage
       min_contig_len: min_contig_len
       exome_mode: exome_mode
       ref_fasta_file: ref_fasta_file

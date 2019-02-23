@@ -48,8 +48,6 @@ steps:
       bwa_used: bwa_used
       excluded_chromosomes: excluded_chromosomes
       bowtie2_path: bowtie2_path
-      coverage_estimate:
-        default: 8
       min_contig_len: min_contig_len
       exome_mode: exome_mode
       phred64: phred64

@@ -35,7 +35,7 @@ steps:
           outputBinding:
             glob: coverage.txt
             loadContents: true
-            outputEval: $(Math.ceil(parseFloat(self[0].contents)))
+            outputEval: $(Math.max(5, Math.ceil(parseFloat(self[0].contents))))
 
     in:
       cov_file: mosdepth/global_dist_file
