@@ -1,0 +1,3 @@
+bam_file:
+  class: File
+  path: ../data/test-1/NA12878.mapped.ILLUMINA.bwa.CEU.low_coverage.20121211.bam
