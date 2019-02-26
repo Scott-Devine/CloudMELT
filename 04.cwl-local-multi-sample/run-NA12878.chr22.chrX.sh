@@ -11,6 +11,10 @@ export TMPDIR="/private${TMPDIR}"
 # real	0m46.997s  (168M BAM/chr22 only)
 #ntime $RUNNER melt-cov.cwl melt-cov.yml
 
+# --------------------------------------------
+# MELT-Split
+# --------------------------------------------
+
 # WF1 - WF4
 
 # WF1. Preprocess - IndivAnalysis on chr22 and chrX
@@ -31,5 +35,20 @@ export TMPDIR="/private${TMPDIR}"
 #$RUNNER melt-vcf.cwl NA12878.chr22/melt-vcf.yml 
 #exit
 
-# End-to-end workflow
-$RUNNER melt-split.cwl NA12878.chr22.chrX/melt-split.yml
+# End-to-end multi-sample workflow
+#$RUNNER melt-split.cwl NA12878.chr22.chrX/melt-split.yml
+#exit
+
+# --------------------------------------------
+# MELT-Deletion
+# --------------------------------------------
+
+# WF1.
+#$RUNNER melt-del-gen.cwl NA12878.chr22.chrX/melt-del-gen-1.yml
+#$RUNNER melt-del-gen.cwl NA12878.chr22.chrX/melt-del-gen-2.yml
+
+# WF2.
+#$RUNNER melt-del-merge.cwl NA12878.chr22.chrX/melt-del-merge.yml
+
+# End-to-end, multi-sample
+$RUNNER melt-del.cwl NA12878.chr22.chrX/melt-del.yml
