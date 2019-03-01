@@ -1,0 +1,10 @@
+melt_jar_file:
+  class: File
+  path: ../../MELTv2.1.5/MELT.jar 
+ref_fasta_file:
+  class: File
+  path: ../../reference/hs37d5.fa
+reads_bam_file:
+  class: File
+  path: ../../data/test-2/NA12878.chrX.sorted.bam
+min_coverage: 5

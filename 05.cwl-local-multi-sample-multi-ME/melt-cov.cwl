@@ -9,9 +9,9 @@ inputs:
     type: float?
     default: 1
 outputs:
-  estimated_coverage:
-    type: float
-    outputSource: mosdepth2coverage/estimated_coverage
+  coverage_file:
+    type: File
+    outputSource: mosdepth2coverage/estimated_coverage_file
 
 steps:
   mosdepth:
@@ -34,8 +34,8 @@ steps:
       baseCommand: ['/Users/jcrabtree/MELT/03.cwl-local-melt-multi/mosdepth2cov.py']
       stdout: coverage.txt
       outputs:
-        estimated_coverage:
-          type: float
+        estimated_coverage_file:
+          type: File
           outputBinding:
             glob: coverage.txt
             loadContents: true
@@ -44,4 +44,4 @@ steps:
     in:
       cov_file: mosdepth/global_dist_file
       min_coverage: min_coverage
-    out: [estimated_coverage]
+    out: [estimated_coverage_file]

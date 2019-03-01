@@ -7,9 +7,13 @@ requirements:
     tmpdirMin: 20000
     outdirMin: 5000
     coresMin: 1
+  SchemaDefRequirement:
+    types:
+      - $import: preproc-bam-type.yml
   InitialWorkDirRequirement:
     listing:
-      - $(inputs.reads_bam_file)
+      - $(inputs.preprocessed_bam_file.reads_bam_file)
+      - $(inputs.preprocessed_bam_file.reads_bai_file)
       - $(inputs.pre_geno_file)
 
 baseCommand: ["java", "-Xmx2G"]
@@ -17,24 +21,19 @@ baseCommand: ["java", "-Xmx2G"]
 stdout: melt-gen-stdout.txt
 stderr: melt-gen-stderr.txt
 
+arguments:
+  - prefix: -jar
+    valueFrom: $(inputs.melt_jar_file)
+  - prefix: 
+    valueFrom: "Genotype"
+  - prefix: -bamfile
+    valueFrom: $(inputs.preprocessed_bam_file.reads_bam_file)
+
 inputs:
   melt_jar_file:
     type: File
-    inputBinding:
-      position: 0
-      prefix: -jar
-  melt_runtime:
-    type: string
-    default: Genotype
-    inputBinding:
-      position: 1
-  reads_bam_file:
-    type: File
-    inputBinding:
-      position: 2
-      prefix: -bamfile
-    secondaryFiles:
-     - .bai
+  preprocessed_bam_file:
+    type: preproc-bam-type.yml#PreprocessedBAM
   min_contig_len:
      type: int?
      default: 1000000
