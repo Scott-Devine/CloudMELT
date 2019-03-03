@@ -9,9 +9,9 @@ inputs:
     type: float?
     default: 1
 outputs:
-  coverage_file:
+  estimated_coverage_file:
     type: File
-    outputSource: mosdepth2coverage/estimated_coverage_file
+    outputSource: coverage2file/estimated_coverage_file
 
 steps:
   mosdepth:
@@ -34,14 +34,38 @@ steps:
       baseCommand: ['/Users/jcrabtree/MELT/03.cwl-local-melt-multi/mosdepth2cov.py']
       stdout: coverage.txt
       outputs:
-        estimated_coverage_file:
-          type: File
+        estimated_coverage:
+          type: float
           outputBinding:
             glob: coverage.txt
             loadContents: true
             outputEval: $(Math.max(inputs.min_coverage, Math.ceil(parseFloat(self[0].contents))))
-
     in:
-      cov_file: mosdepth/global_dist_file
       min_coverage: min_coverage
+      cov_file: mosdepth/global_dist_file
+    out: [estimated_coverage]
+
+  coverage2file:
+    run:
+      class: CommandLineTool
+      requirements:
+        InlineJavascriptRequirement: {}
+      baseCommand: ['echo']
+      stdout: $(inputs.bam_file.basename + ".est_coverage.txt")
+      inputs:
+        bam_file:
+          type: File
+        coverage:
+          type: float
+          inputBinding:
+            position: 1
+
+      outputs:
+        estimated_coverage_file:
+          type: File
+          outputBinding:
+            glob: $(inputs.bam_file.basename + ".est_coverage.txt")
+    in:
+      bam_file: bam_file
+      coverage: mosdepth2coverage/estimated_coverage
     out: [estimated_coverage_file]

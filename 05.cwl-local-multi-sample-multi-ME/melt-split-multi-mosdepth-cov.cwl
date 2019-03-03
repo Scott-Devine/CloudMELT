@@ -40,7 +40,7 @@ inputs:
   remove_ac0_sites: boolean?
   group_stdev_cutoff: int?
   makevcf_stdev_cutoff: float?
-  min_coverage: float
+  min_coverage: float?
 
 outputs:
   vcf_files:
@@ -48,10 +48,15 @@ outputs:
       type: array
       items: File
     outputSource: ind_grp_gen_vcf/vcf_file
+  preprocessed_bam_files:
+     type:
+       type: array
+       items: preproc-bam-type.yml#PreprocessedBAM
+     outputSource: preprocess_coverage/preprocessed_bam_file
 
 steps:
   preprocess_coverage:
-    run: melt-split-pre-dummy-cov.cwl
+    run: melt-split-pre-mosdepth-cov.cwl
     scatter: reads_bam_file
     in:
       melt_jar_file: melt_jar_file
@@ -84,9 +89,5 @@ steps:
       remove_ac0_sites: remove_ac0_sites
       group_stdev_cutoff: group_stdev_cutoff
       makevcf_stdev_cutoff: makevcf_stdev_cutoff
-      min_coverage: min_coverage
 
     out: [vcf_file]
-
-
-

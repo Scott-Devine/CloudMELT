@@ -35,7 +35,6 @@ inputs:
   remove_ac0_sites: boolean?
   group_stdev_cutoff: int?
   makevcf_stdev_cutoff: float?
-  min_coverage: float?
 
 outputs: 
   vcf_file:
@@ -59,8 +58,6 @@ steps:
       phred64: phred64
       read_length: read_length
       max_reads_in_mem: max_reads_in_mem
-# TODO - use the file instead
-      coverage_estimate: min_coverage
     out: [aligned_bam_file, hum_breaks_bam_file, pulled_bam_file, tmp_bed_file]
 
   grp:

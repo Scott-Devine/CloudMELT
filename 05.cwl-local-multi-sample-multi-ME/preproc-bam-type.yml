@@ -13,3 +13,5 @@ fields:
     type: File
   - name: estimated_coverage_file
     type: File
+  - name: estimated_coverage
+    type: float

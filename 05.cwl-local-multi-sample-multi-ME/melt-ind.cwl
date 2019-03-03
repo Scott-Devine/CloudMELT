@@ -7,6 +7,7 @@ requirements:
     tmpdirMin: 20000
     outdirMin: 5000
     coresMin: 1
+  InlineJavascriptRequirement: {}
   SchemaDefRequirement:
     types:
       - $import: preproc-bam-type.yml
@@ -30,6 +31,8 @@ arguments:
     valueFrom: "IndivAnalysis"
   - prefix: -bamfile
     valueFrom: $(inputs.preprocessed_bam_file.reads_bam_file)
+  - prefix: -c
+    valueFrom: $(inputs.preprocessed_bam_file.estimated_coverage)
 
 inputs:
   melt_jar_file:
@@ -52,11 +55,6 @@ inputs:
     inputBinding:
       position: 5
       prefix: -bowtie
-  coverage_estimate:
-    type: float
-    inputBinding:
-      position: 6
-      prefix: -c
   min_contig_len:
      type: int?
      default: 1000000

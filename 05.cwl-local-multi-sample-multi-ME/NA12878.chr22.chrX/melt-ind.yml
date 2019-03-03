@@ -9,6 +9,5 @@ genes_bed_file:
   path: ../../MELTv2.1.5/add_bed_files/1KGP_Hg19/hg19.genes.bed
 excluded_chromosomes: hs37d5/NC_007605
 transposon_zip_file: { class: File, path: "../../MELTv2.1.5/me_refs/1KGP_Hg19/LINE1_MELT.zip" }
-coverage_estimate: 5
-preprocessed_bam_file: { reads_bam_file: { class: File, path: "../NA12878.chr22.sorted.bam" }, reads_bai_file: { class: File, path: "../NA12878.chr22.sorted.bam.bai" }, dr_bam_file: { class: File, path: "../NA12878.chr22.sorted.bam.disc" }, dr_bai_file: { class: File, path: "../NA12878.chr22.sorted.bam.disc.bai" }, fastq_file: { class: File, path: "../NA12878.chr22.sorted.bam.fq" }, estimated_coverage_file: { class: File, path: "../NA12878.chr22.sorted.bam.est_coverage.txt" } }
+preprocessed_bam_file: { reads_bam_file: { class: File, path: "../NA12878.chr22.sorted.bam" }, reads_bai_file: { class: File, path: "../NA12878.chr22.sorted.bam.bai" }, dr_bam_file: { class: File, path: "../NA12878.chr22.sorted.bam.disc" }, dr_bai_file: { class: File, path: "../NA12878.chr22.sorted.bam.disc.bai" }, fastq_file: { class: File, path: "../NA12878.chr22.sorted.bam.fq" }, estimated_coverage_file: { class: File, path: "../NA12878.chr22.sorted.bam.est_coverage.txt" }, estimated_coverage: 5 }
 

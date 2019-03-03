@@ -17,7 +17,6 @@ inputs:
     type: File
     secondaryFiles:
       - .bai
-  coverage: float
 
 outputs:
   preprocessed_bam_file:
@@ -33,30 +32,10 @@ steps:
       reads_bam_file: reads_bam_file
     out: [dr_bam_file, fastq_file]
 
-  dummy_coverage:
-    run:
-      class: CommandLineTool
-      requirements:
-        InlineJavascriptRequirement: {}
-      baseCommand: ['echo']
-      stdout: $(inputs.reads_bam_file.basename + ".est_coverage.txt")
-      inputs:
-        reads_bam_file:
-          type: File
-          secondaryFiles:
-            - .bai
-        coverage:
-          type: float
-          inputBinding:
-            position: 1
-      outputs:
-        estimated_coverage_file:
-          type: File
-          outputBinding:
-            glob: $(inputs.reads_bam_file.basename + ".est_coverage.txt")
+  mosdepth_coverage:
+    run: melt-cov-mosdepth.cwl
     in:
-      reads_bam_file: reads_bam_file
-      coverage: coverage
+      bam_file: reads_bam_file
     out: [estimated_coverage_file]
 
   make_output_rec:
@@ -92,10 +71,9 @@ steps:
                   "estimated_coverage": parseFloat(inputs.estimated_coverage_file.contents)
                 };
               }
-
     in:
       reads_bam_file: reads_bam_file
       dr_bam_file: preprocess/dr_bam_file
       fastq_file: preprocess/fastq_file
-      estimated_coverage_file: dummy_coverage/estimated_coverage_file
+      estimated_coverage_file: mosdepth_coverage/estimated_coverage_file
     out: [ preprocessed_bam ]

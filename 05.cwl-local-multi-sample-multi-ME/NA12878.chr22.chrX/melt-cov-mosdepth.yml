@@ -1,0 +1,4 @@
+bam_file:
+  class: File
+  path: ../../data/test-2/NA12878.chr22.sorted.bam
+min_coverage: 5

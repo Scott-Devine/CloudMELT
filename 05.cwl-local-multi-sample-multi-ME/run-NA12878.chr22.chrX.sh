@@ -9,7 +9,8 @@ export TMPDIR="/private${TMPDIR}"
 
 # coverage test with mosdepth
 # real	0m46.997s  (168M BAM/chr22 only)
-#ntime $RUNNER melt-cov.cwl melt-cov.yml
+#$RUNNER melt-cov-mosdepth.cwl NA12878.chr22.chrX/melt-cov-mosdepth.yml
+#exit
 
 # --------------------------------------------
 # MELT-Split
@@ -39,8 +40,40 @@ export TMPDIR="/private${TMPDIR}"
 #$RUNNER melt-vcf.cwl NA12878.chr22/melt-vcf.yml 
 #exit
 
-# End-to-end multi-sample, multi-ME workflow
-$RUNNER melt-split-multi.cwl NA12878.chr22.chrX/melt-split-multi.yml
+# End-to-end multi-sample, multi-ME workflow with dummy coverage calculation
+#
+# Chr22,ChrX LINE1,ALU,SVA
+#
+# real	2m3.407s
+# user	4m18.113s
+# sys	0m59.762s
+#$RUNNER melt-split-multi-dummy-cov.cwl NA12878.chr22.chrX/melt-split-multi-dummy-cov.yml
+#exit
+
+# MELT-Single run on chrX only:
+#
+# real	0m47.929s
+# user	1m10.602s
+# sys	0m5.109s
+#export MELT=../MELTv2.1.5
+#export WDIR=2chr-3me-single
+#mkdir $WDIR
+#java -jar $MELT/MELT.jar Single \
+#    -a \
+#    -b hs37d5/NC_007605 \
+#    -c 7 \
+#    -h ../reference/hs37d5.fa \
+#    -bamfile ../data/test-2/NA12878.chrX.sorted.bam \
+#    -n $MELT/add_bed_files/1KGP_Hg19/hg19.genes.bed \
+#    -t mei_list.txt \
+#    -w $WDIR >$WDIR.out 2>$WDIR.err
+#exit
+
+# End-to-end multi-sample, multi-ME workflow with mosdepth coverage calculation
+#
+# Chr22,ChrX LINE1,ALU,SVA
+#
+$RUNNER melt-split-multi-mosdepth-cov.cwl NA12878.chr22.chrX/melt-split-multi-mosdepth-cov.yml
 exit
 
 # --------------------------------------------
