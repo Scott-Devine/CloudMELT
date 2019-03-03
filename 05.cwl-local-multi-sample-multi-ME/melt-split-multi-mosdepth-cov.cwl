@@ -48,11 +48,6 @@ outputs:
       type: array
       items: File
     outputSource: ind_grp_gen_vcf/vcf_file
-  preprocessed_bam_files:
-     type:
-       type: array
-       items: preproc-bam-type.yml#PreprocessedBAM
-     outputSource: preprocess_coverage/preprocessed_bam_file
 
 steps:
   preprocess_coverage:
