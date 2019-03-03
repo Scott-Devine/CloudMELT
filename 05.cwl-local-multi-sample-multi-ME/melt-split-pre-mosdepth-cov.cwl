@@ -17,6 +17,7 @@ inputs:
     type: File
     secondaryFiles:
       - .bai
+  min_coverage: float?
 
 outputs:
   preprocessed_bam_file:
@@ -36,6 +37,7 @@ steps:
     run: melt-cov-mosdepth.cwl
     in:
       bam_file: reads_bam_file
+      min_coverage: min_coverage
     out: [estimated_coverage_file]
 
   make_output_rec:
