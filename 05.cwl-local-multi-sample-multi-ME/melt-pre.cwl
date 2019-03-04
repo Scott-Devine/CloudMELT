@@ -5,7 +5,7 @@ requirements:
   ResourceRequirement:
     ramMin: 1910
     tmpdirMin: 20000
-    outdirMin: 5000
+    outdirMin: 25000
     coresMin: 1
   InitialWorkDirRequirement:
     listing:
