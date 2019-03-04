@@ -9,6 +9,9 @@ export TMPDIR="/private${TMPDIR}"
 
 # coverage test with mosdepth
 # real	0m46.997s  (168M BAM/chr22 only)
+# real	5m21.681s (15GB NA12878)
+# user  0m10.838s
+# sys   0m5.940s
 #$RUNNER melt-cov-mosdepth.cwl NA12878.chr22.chrX/melt-cov-mosdepth.yml
 #exit
 
@@ -71,10 +74,21 @@ export TMPDIR="/private${TMPDIR}"
 
 # End-to-end multi-sample, multi-ME workflow with mosdepth coverage calculation
 #
-# Chr22,ChrX LINE1,ALU,SVA
+# NA12878
 #
-$RUNNER melt-split-multi-mosdepth-cov.cwl NA12878.chr22.chrX/melt-split-multi-mosdepth-cov.yml
+# real	16m2.271s
+# user	15m51.086s
+# sys	3m59.189s
+#
+$RUNNER melt-split-multi-mosdepth-cov.cwl NA12878.chr22.chrX/melt-split-multi-NA12878.yml
 exit
+
+# same with dummy coverage
+# real	12m44.736s
+# user	15m33.865s
+# sys	3m50.853s
+#$RUNNER melt-split-multi-dummy-cov.cwl NA12878.chr22.chrX/melt-split-multi-dummy-cov-NA12878.yml
+#exit
 
 # --------------------------------------------
 # MELT-Deletion

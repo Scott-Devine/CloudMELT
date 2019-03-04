@@ -1,4 +1,4 @@
 bam_file:
   class: File
-  path: ../../data/test-2/NA12878.chr22.sorted.bam
-min_coverage: 5
+  path: ../../data/test-1/NA12878.mapped.ILLUMINA.bwa.CEU.low_coverage.20121211.bam
+min_coverage: 2
