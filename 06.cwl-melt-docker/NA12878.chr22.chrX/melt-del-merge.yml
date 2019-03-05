@@ -1,0 +1,12 @@
+ref_fasta_file:
+  class: File
+  path: ../../reference/hs37d5.fa
+me_bed_file:
+  class: File
+  path: ../../MELTv2.1.5/add_bed_files/1KGP_Hg19/LINE1.deletion.bed
+mergelist:
+  class: File
+  path: melt-del-mergelist.txt
+tsv_files:
+  - {class: File, path: ../NA12878.chr22.del.tsv}
+  - {class: File, path: ../NA12878.chrX.del.tsv}

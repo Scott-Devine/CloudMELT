@@ -1,0 +1,10 @@
+ref_fasta_file:
+  class: File
+  path: ../../reference/hs37d5.fa
+me_bed_file:
+  class: File
+  path: ../../MELTv2.1.5/add_bed_files/1KGP_Hg19/LINE1.deletion.bed
+reads_bam_files:
+  - {class: File, path: ../../data/test-2/NA12878.chr22.sorted.bam}
+  - {class: File, path: ../../data/test-2/NA12878.chrX.sorted.bam}
+
