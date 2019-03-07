@@ -1,2 +1,2 @@
-/Users/jcrabtree/MELT/04.cwl-local-multi-sample/NA12878.chr22.del.tsv
-/Users/jcrabtree/MELT/04.cwl-local-multi-sample/NA12878.chrX.del.tsv
+NA12878.chr22.del.tsv
+NA12878.chrX.del.tsv
