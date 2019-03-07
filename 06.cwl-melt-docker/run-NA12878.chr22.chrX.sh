@@ -74,14 +74,10 @@ export TMPDIR="/private${TMPDIR}"
 
 # End-to-end multi-sample, multi-ME workflow with mosdepth coverage calculation
 #
-# NA12878
+# chr22, chrX
 #
-# real	16m2.271s
-# user	15m51.086s
-# sys	3m59.189s
-#
-#$RUNNER melt-split-multi-mosdepth-cov.cwl NA12878.chr22.chrX/melt-split-multi-NA12878.yml
-#exit
+$RUNNER melt-split-multi-mosdepth-cov.cwl NA12878.chr22.chrX/melt-split-multi-mosdepth-cov.yml
+exit
 
 # same with dummy coverage
 # real	12m44.736s
@@ -97,9 +93,9 @@ export TMPDIR="/private${TMPDIR}"
 # WF1. Genotype
 #
 # chr22/LINE1 - 2m13s
-$RUNNER melt-del-gen.cwl NA12878.chr22.chrX/melt-del-gen-1.yml
+#$RUNNER melt-del-gen.cwl NA12878.chr22.chrX/melt-del-gen-1.yml
 #$RUNNER melt-del-gen.cwl NA12878.chr22.chrX/melt-del-gen-2.yml
-exit
+#exit
 
 # WF2. Merge
 #$RUNNER melt-del-merge.cwl NA12878.chr22.chrX/melt-del-merge.yml
@@ -116,5 +112,10 @@ exit
 # real	164m5.925s
 # user	1m17.381s
 # sys	1m21.171s
+#
+# LINE1 only (chr22,chrX):
+# real	4m17.636s
+# user	0m12.300s
+# sys	0m7.477s
 #
 $RUNNER melt-del-multi.cwl NA12878.chr22.chrX/melt-del-multi.yml

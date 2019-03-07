@@ -14,7 +14,6 @@ inputs:
       type: array
       items: preproc-bam-type.yml#PreprocessedBAM
   bwa_used: boolean?
-  bowtie2_path: File?
   excluded_chromosomes: string?
   exome_mode: boolean?
   ref_fasta_file:
@@ -50,7 +49,6 @@ steps:
       transposon_zip_file: transposon_zip_file
       bwa_used: bwa_used
       excluded_chromosomes: excluded_chromosomes
-      bowtie2_path: bowtie2_path
       min_contig_len: min_contig_len
       exome_mode: exome_mode
       phred64: phred64

@@ -33,6 +33,8 @@ arguments:
     valueFrom: $(inputs.preprocessed_bam_file.reads_bam_file)
   - prefix: -c
     valueFrom: $(inputs.preprocessed_bam_file.estimated_coverage)
+  - prefix: -bowtie
+    valueFrom: /opt/bowtie2/bowtie2 
 
 inputs:
   preprocessed_bam_file:
@@ -48,11 +50,6 @@ inputs:
     inputBinding:
       position: 3
       prefix: -b
-  bowtie2_path:
-    type: File?
-    inputBinding:
-      position: 5
-      prefix: -bowtie
   min_contig_len:
      type: int?
      default: 1000000

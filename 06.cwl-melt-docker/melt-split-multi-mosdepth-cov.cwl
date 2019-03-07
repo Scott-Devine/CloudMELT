@@ -25,7 +25,6 @@ inputs:
       items: File
   genes_bed_file: File
   bwa_used: boolean?
-  bowtie2_path: File?
   excluded_chromosomes: string?
   exome_mode: boolean?
   min_contig_len: int?
@@ -65,7 +64,6 @@ steps:
       preprocessed_bam_files: preprocess_coverage/preprocessed_bam_file
       ref_fasta_file: ref_fasta_file
       bwa_used: bwa_used
-      bowtie2_path: bowtie2_path
       excluded_chromosomes: excluded_chromosomes
       exome_mode: exome_mode
       min_contig_len: min_contig_len
