@@ -1,0 +1,17 @@
+type: record
+name: PreprocessedBAM
+fields:
+  - name: reads_bam_file 
+    type: File
+  - name: reads_bai_file
+    type: File
+  - name: dr_bam_file 
+    type: File
+  - name: dr_bai_file
+    type: File
+  - name: fastq_file
+    type: File
+  - name: estimated_coverage_file
+    type: File
+  - name: estimated_coverage
+    type: float
