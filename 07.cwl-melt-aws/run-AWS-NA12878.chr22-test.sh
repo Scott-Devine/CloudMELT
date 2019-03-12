@@ -8,7 +8,7 @@ export RUNNER='toil-cwl-runner --retryCount 0'
 # melt-del-multi.cwl
 # --------------------------------------------
 
-$RUNNER --clean never --cleanWorkDir never \
+$RUNNER --clean never \
  --jobStore aws:us-east-1:toil-tjs1 \
  --logLevel DEBUG \
  --logFile melt-del-multi.log \
@@ -17,6 +17,8 @@ $RUNNER --clean never --cleanWorkDir never \
 
 # manually clean aws job store
 #toil clean aws:us-east-1:toil-tjs1
+
+# for debugging: --cleanWorkDir never 
 
 # --------------------------------------------
 # melt-pre.cwl
