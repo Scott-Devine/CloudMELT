@@ -39,8 +39,12 @@ steps:
   make_mergelist:
     run:
       class: CommandLineTool
-      baseCommand: ['/root/scripts/commas_to_newlines.sh']
+      baseCommand: ['commas_to_newlines.sh']
       stdout: files_list.txt
+
+      hints:
+        DockerRequirement:
+          dockerImageId: 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt:latest
 
       requirements:
         InlineJavascriptRequirement: {}
