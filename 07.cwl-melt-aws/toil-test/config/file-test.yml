@@ -1,0 +1,3 @@
+file:
+  class: File
+  path: s3:melt-test-01/NA12878.chr22.sorted.bam
