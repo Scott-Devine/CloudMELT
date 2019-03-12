@@ -1,0 +1,6 @@
+ref_fasta_file:
+  class: File
+  path: ../hs37d5.fa
+reads_bam_file: 
+  class: File
+  path: ../NA12878.chr22.sorted.bam

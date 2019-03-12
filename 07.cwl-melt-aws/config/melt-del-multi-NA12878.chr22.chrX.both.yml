@@ -1,0 +1,9 @@
+ref_fasta_file:
+  class: File
+  path: ../files/reference/hs37d5.fa
+me_bed_files:
+  - {class: File, path: ../files/1KGP_Hg19/AluY.deletion.filtered.bed}
+  - {class: File, path: ../files/1KGP_Hg19/LINE1.deletion.bed}
+reads_bam_files:
+  - {class: File, path: ../files/NA12878.chrX.sorted.bam}
+  - {class: File, path: ../files/NA12878.chr22.sorted.bam}

@@ -1,0 +1,82 @@
+
+Step-by-step test using NA12878.chr22 subset on AWS with Toil.
+
+# No need to override these defaults:
+# export TOIL_DOCKER_REGISTRY=quay.io/ucsc_cgl
+# export TOIL_DOCKER_NAME=toil
+# export TOIL_APPLIANCE_SELF=quay.io/ucsc_cgl/toil:3.18.0 
+
+# t2.medium - 2 vCPU, 4GiB mem, EBS only, $0.0464/hour
+# t2.xlarge - 4 vCPU, 16GiB, EBS only, $0.1856/hour
+# m5d.large - 2 vCPU, 8 GiB RAM, 75 SSD, $0.113/hour
+# m5d.xlarge - 4 vCPU, 16GiB RAM, 150 SSD, 0.226/hour  - The specified instance type can only be used in a VPC
+
+# -------------------------------------------------------------
+# Configure AWS environment
+# -------------------------------------------------------------
+aws configure
+set ~/.boto
+ssh-add ~/.ssh/igsjonathancrabtreekp1.pem
+
+# -------------------------------------------------------------
+# Init Toil cluster
+# -------------------------------------------------------------
+# 23.2 cents/hour + storage
+toil launch-cluster tcm1 --leaderNodeType t2.medium --zone us-east-1a --keyPairName kp1 --nodeTypes t2.xlarge -w 1
+
+# -------------------------------------------------------------
+# Transfer files
+# -------------------------------------------------------------
+mkdir files
+cp -R ../MELTv2.1.5/add_bed_files/1KGP_Hg19 files/
+cp ../06.cwl-melt-docker/docker/AluY.deletion.filtered.bed ./files/1KGP_Hg19/
+
+mkdir scripts
+cp ../04.cwl-local-multi-sample/commas_to_newlines.sh ./scripts/
+
+tar czvf AWS-NA12878.chr22-test.tar.gz *.cwl run-AWS-NA12878.chr22-test.sh config files scripts
+toil rsync-cluster -z us-east-1a tcm1 AWS-NA12878.chr22-test.tar.gz :/root/
+
+# -------------------------------------------------------------
+# Load data files onto leaderNode
+# -------------------------------------------------------------
+toil ssh-cluster -z us-east-1a tcm1
+cd root
+tar xzvf AWS-NA12878.chr22-test.tar.gz
+apt-get update
+apt-get install s3cmd
+s3cmd --configure
+cd files
+s3cmd get s3://melt-test-01/NA12878.chr22.sorted.bam .
+s3cmd get s3://melt-test-01/NA12878.chr22.sorted.bam.bai .
+mkdir reference; cd reference
+s3cmd get s3://melt-test-01/hs37d5.fa .
+s3cmd get s3://melt-test-01/hs37d5.fa.fai .
+
+# 40G available on leader node
+
+# -------------------------------------------------------------
+# Configure Docker on leader and worker nodes
+# -------------------------------------------------------------
+
+# on local machine run:
+aws ecr get-login --region us-east-1 --no-include-email
+
+# run docker login command on leaderNode
+
+# copy these files from leaderNode to worker(s):
+ /root/.docker/config.json
+ /root/scripts/*
+
+toil rsync-cluster -z us-east-1a tcm1 /root/.docker/config.json ./
+scp config.json core@<worker_public_ip>
+swp scripts/*.sh core@<worker_public_ip>
+ssh core@<worker_public_ip>
+sudo mkdir /root/.docker /root/scripts
+sudo cp config.json /root/.docker
+sudo cp *.sh /root/scripts/
+
+# (optional - test with docker pull 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt:latest)
+
+
+
