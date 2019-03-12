@@ -3,7 +3,7 @@ class: CommandLineTool
 
 requirements:
   ResourceRequirement:
-    ramMin: 2000
+    ramMin: 6000
     tmpdirMin: 20000
     outdirMin: 5000
     coresMin: 1
