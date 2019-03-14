@@ -34,7 +34,7 @@ cp ../06.cwl-melt-docker/docker/AluY.deletion.filtered.bed ./files/1KGP_Hg19/
 mkdir scripts
 cp ../04.cwl-local-multi-sample/commas_to_newlines.sh ./scripts/
 
-tar czvf AWS-NA12878.chr22-test.tar.gz *.cwl run-AWS-NA12878.chr22-test.sh config files scripts
+tar czvf AWS-NA12878.chr22-test.tar.gz *.cwl *.yml run-AWS-NA12878.chr22-test.sh config files/1KGP_Hg19 files/me_refs scripts
 toil rsync-cluster -z us-east-1a tcm1 AWS-NA12878.chr22-test.tar.gz :/root/
 
 # -------------------------------------------------------------
