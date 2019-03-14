@@ -80,8 +80,8 @@ export TMPDIR="/private${TMPDIR}"
 # user	15m51.086s
 # sys	3m59.189s
 #
-$RUNNER melt-split-multi-mosdepth-cov.cwl NA12878.chr22.chrX/melt-split-multi-NA12878.yml
-exit
+#$RUNNER melt-split-multi-mosdepth-cov.cwl NA12878.chr22.chrX/melt-split-multi-NA12878.yml
+#exit
 
 # same with dummy coverage
 # real	12m44.736s
@@ -97,6 +97,7 @@ exit
 # WF1.
 #$RUNNER melt-del-gen.cwl NA12878.chr22.chrX/melt-del-gen-1.yml
 #$RUNNER melt-del-gen.cwl NA12878.chr22.chrX/melt-del-gen-2.yml
+exit
 
 # WF2.
 #$RUNNER melt-del-merge.cwl NA12878.chr22.chrX/melt-del-merge.yml
