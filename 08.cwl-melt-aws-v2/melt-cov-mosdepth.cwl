@@ -28,9 +28,6 @@ steps:
       class: CommandLineTool
       requirements:
         InlineJavascriptRequirement: {}
-      hints:
-        DockerRequirement:
-          dockerImageId: 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt:latest
       inputs:
         cov_file:
           type: File

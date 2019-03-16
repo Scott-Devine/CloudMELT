@@ -16,10 +16,6 @@ baseCommand: [java, "-Xmx2G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "Preprocess"]
 stdout: melt-pre-stdout.txt
 stderr: melt-pre-stderr.txt
 
-hints:
-  DockerRequirement:
-    dockerImageId: 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt:latest
-
 inputs:
   ref_fasta_file:
     type: File

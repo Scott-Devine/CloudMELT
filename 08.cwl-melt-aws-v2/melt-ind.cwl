@@ -20,10 +20,6 @@ baseCommand: ["java", "-Xmx6G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "IndivAnalys
 stdout: melt-ind-stdout.txt
 stderr: melt-ind-stderr.txt
 
-hints:
-  DockerRequirement:
-    dockerImageId: 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt:latest
-
 arguments:
   - prefix: -bamfile
     valueFrom: $(inputs.reads_bam_file)

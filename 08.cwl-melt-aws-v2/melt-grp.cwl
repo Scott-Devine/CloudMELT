@@ -23,10 +23,6 @@ baseCommand: ["java", "-Xmx4G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "GroupAnalys
 stdout: melt-grp-stdout.txt
 stderr: melt-grp-stderr.txt
 
-hints:
-  DockerRequirement:
-    dockerImageId: 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt:latest
-
 inputs:
   bwa_used:
     type: boolean?

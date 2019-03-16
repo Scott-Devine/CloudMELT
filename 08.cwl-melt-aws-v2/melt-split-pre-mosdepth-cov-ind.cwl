@@ -26,25 +26,28 @@ inputs:
   max_reads_in_mem: int?
 
 outputs:
-  aligned_bam_file:
+  estimated_coverage_file:
+    type: File
+    outputSource: mosdepth_coverage/estimated_coverage_file
+  aligned_bam_files:
     type:
       type: array
       items: File
     secondaryFiles: [".bai"]
     outputSource: ind/aligned_bam_file
-  hum_breaks_bam_file:
+  hum_breaks_bam_files:
     type:
       type: array
       items: File
     secondaryFiles: [".bai"]
     outputSource: ind/hum_breaks_bam_file
-  pulled_bam_file:
+  pulled_bam_files:
     type:
       type: array
       items: File
     secondaryFiles: [".bai"]
     outputSource: ind/pulled_bam_file
-  tmp_bed_file:
+  tmp_bed_files:
     type:
       type: array
       items: File

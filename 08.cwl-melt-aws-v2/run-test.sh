@@ -21,7 +21,7 @@ export TMPDIR="/private${TMPDIR}"
 # TODO - add script to generate .yml files and cwltoil commands
 
 # chr22 subset, LINE1 only
-$RUNNER melt-grp.cwl config/melt-grp-NA12878.chr22.LINE1.yml
+#$RUNNER melt-grp.cwl config/melt-grp-NA12878.chr22.LINE1.yml
 
 # --------------------------------------------
 # gen - scatter by sample
@@ -34,3 +34,8 @@ $RUNNER melt-grp.cwl config/melt-grp-NA12878.chr22.LINE1.yml
 # --------------------------------------------
 
 # TODO
+
+# --------------------------------------------
+# test locally on toil Docker image
+# --------------------------------------------
+$RUNNER --logLevel DEBUG melt-split-step-1.cwl config/melt-split-step-1.yml

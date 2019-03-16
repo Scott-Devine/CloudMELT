@@ -17,10 +17,6 @@ arguments: ["-n", "--fast-mode", "-t", "4", "--by", "1000", "output"]
 stdout: melt-cov-stdout.txt
 stderr: melt-cov-stderr.txt
 
-hints:
-  DockerRequirement:
-    dockerPull: quay.io/biocontainers/mosdepth:0.2.4--he527e40_0
-
 inputs:
   bam_file:
     type: File
