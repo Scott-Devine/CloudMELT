@@ -8,7 +8,7 @@ requirements:
     outdirMin: 15000
     coresMin: 1
   DockerRequirement:
-    dockerImageId: umigs/cloud-melt-v1.0.0
+    dockerImageId: 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt
     dockerOutputDirectory: /toil
   InlineJavascriptRequirement: {}
   InitialWorkDirRequirement:
