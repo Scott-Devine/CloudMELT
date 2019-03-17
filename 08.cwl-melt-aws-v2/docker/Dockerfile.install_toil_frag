@@ -1,0 +1,4 @@
+
+# Install Toil itself
+RUN apt-get install -y curl python-pip
+RUN pip install virtualenv && virtualenv ~/venv && pip install toil[cwl]

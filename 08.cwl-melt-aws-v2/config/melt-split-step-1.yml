@@ -1,8 +1,7 @@
-cwl_file: { class: File, path: ../melt-split-pre-mosdepth-cov-ind.cwl }
 melt_config_file: { class: File, path: melt-split-step-1-pre.yml }
-other_cwl_files:
+cwl_files:
+ - { class: File, path: ../melt-split-pre-mosdepth-cov-ind.cwl }
  - { class: File, path: ../melt-pre.cwl }
  - { class: File, path: ../melt-cov-mosdepth.cwl }
  - { class: File, path: ../mosdepth.cwl }
  - { class: File, path: ../melt-ind.cwl }
-

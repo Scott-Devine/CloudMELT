@@ -1,0 +1,15 @@
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/hs37d5.fa
+ref_bed_file: 
+  class: File
+  path: /opt/MELTv2.1.5/add_bed_files/1KGP_Hg19/hg19.genes.bed
+transposon_zip_file: { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/ALU_MELT.zip }
+aligned_bam_files:
+ - { class: File, path: /toil/NA12878.chr22.ALU.aligned.final.sorted.bam }
+hum_breaks_bam_files:
+ - { class: File, path: /toil/NA12878.chr22.ALU.hum_breaks.sorted.bam }
+pulled_bam_files:
+ - { class: File, path: /toil/NA12878.chr22.ALU.pulled.sorted.bam }
+tmp_bed_files:
+ - { class: File, path: /toil/NA12878.chr22.ALU.tmp.bed }
