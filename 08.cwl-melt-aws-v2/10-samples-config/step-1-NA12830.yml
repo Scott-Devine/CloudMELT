@@ -1,0 +1,7 @@
+melt_config_file: { class: File, path: step-1-pre-NA12830.yml }
+cwl_files:
+ - { class: File, path: ../melt-split-pre-mosdepth-cov-ind.cwl }
+ - { class: File, path: ../melt-pre.cwl }
+ - { class: File, path: ../melt-cov-mosdepth.cwl }
+ - { class: File, path: ../mosdepth.cwl }
+ - { class: File, path: ../melt-ind.cwl }

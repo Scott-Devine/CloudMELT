@@ -1,0 +1,16 @@
+melt_config_file: { class: File, path: step-4-vcf-ALU.yml }
+cwl_files:
+ - { class: File, path: ../melt-vcf.cwl }
+input_files:
+ - { class: File, path: ../step-2-files/ALU.pre_geno.tsv }
+ - { class: File, path: ../step-3-files/NA12829.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: ../step-3-files/NA12830.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: ../step-3-files/NA12842.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: ../step-3-files/NA12843.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: ../step-3-files/NA12872.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: ../step-3-files/NA12873.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: ../step-3-files/NA12874.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: ../step-3-files/NA12878.mapped.ILLUMINA.bwa.CEU.low_coverage.20121211.ALU.tsv }
+ - { class: File, path: ../step-3-files/NA12889.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: ../step-3-files/NA12890.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+

@@ -1,0 +1,9 @@
+melt_config_file: { class: File, path: step-3-gen-NA12878.yml }
+cwl_files:
+ - { class: File, path: ../melt-split-gen.cwl }
+ - { class: File, path: ../melt-gen.cwl }
+ - { class: File, path: ../transposon-file-type.yml }
+input_files:
+ - { class: File, path: ../step-2-files/LINE1.pre_geno.tsv }
+ - { class: File, path: ../step-2-files/ALU.pre_geno.tsv }
+

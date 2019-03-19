@@ -1,0 +1,9 @@
+reads_bam_uri: http://s3.amazonaws.com/1000genomes/phase3/data/NA12889/alignment/NA12889.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/hs37d5.fa
+transposon_files:
+  - { pre_geno: { class: File, path: /toil/LINE1.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/LINE1_MELT.zip }}
+  - { pre_geno: { class: File, path: /toil/ALU.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/ALU_MELT.zip }}
+
+

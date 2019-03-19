@@ -1,0 +1,17 @@
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/hs37d5.fa
+transposon_zip_file: { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/ALU_MELT.zip }
+pre_geno_file: { class: File, path: /toil/ALU.pre_geno.tsv }
+geno_files:
+ - { class: File, path: /toil/NA12829.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: /toil/NA12830.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: /toil/NA12842.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: /toil/NA12843.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: /toil/NA12872.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: /toil/NA12873.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: /toil/NA12874.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: /toil/NA12878.mapped.ILLUMINA.bwa.CEU.low_coverage.20121211.ALU.tsv }
+ - { class: File, path: /toil/NA12889.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+ - { class: File, path: /toil/NA12890.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.ALU.tsv }
+

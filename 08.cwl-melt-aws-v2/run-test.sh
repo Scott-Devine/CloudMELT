@@ -31,7 +31,7 @@ export RUNNER='toil-cwl-runner --retryCount 0 --logLevel DEBUG'
 # --------------------------------------------
 
 # -----
-# coverage - pre -ind
+# coverage - pre - ind
 # -----
 # real1m23.770s
 # user0m2.723s
@@ -112,29 +112,43 @@ export RUNNER='toil-cwl-runner --retryCount 0 --logLevel DEBUG'
 # -----
 # coverage - pre -ind
 # -----
+
+# on EBS:
 # real47m42.116s
 # user0m16.756s
 # sys0m2.153s
 # - produced 25MB of files
+
+# on SSD:
+#real18m10.338s
+#user0m7.746s
+#sys0m1.212s
+
 # mkdir step-1-files
 # mv NA12878* step-1-files/
 # perl -pi.bak -e 's#\.\.\/NA12878\.chr22#../step-1-files/NA12878.mapped.ILLUMINA.bwa.CEU.low_coverage.20121211#;' *-step-2*.yml
 # perl -pi.bak -e 's#NA12878\.chr22#NA12878.mapped.ILLUMINA.bwa.CEU.low_coverage.20121211#;' *-step-2*.yml
 
-#time $RUNNER \
-# --jobStore aws:us-east-1:toil-tjs1 \
-# --logFile melt-split-step-1.log \
-# --batchSystem mesos \
-#melt-split-step-1.cwl NA12878-config/melt-split-step-1.yml
+time $RUNNER \
+ --jobStore aws:us-east-1:toil-tjs1 \
+ --logFile melt-split-step-1.log \
+ --batchSystem mesos \
+melt-split-step-1.cwl NA12878-config/melt-split-step-1.yml
 
 # -----
 # group - LINE1
 # -----
 
+# on EBS:
 #real1m19.240s
 #user0m2.684s
 #sys0m0.368s
 # - 23K output
+
+# on SSD:
+#real1m19.982s
+#user0m2.682s
+#sys0m0.382s
 
 #time $RUNNER \
 # --jobStore aws:us-east-1:toil-tjs1 \
@@ -146,10 +160,16 @@ export RUNNER='toil-cwl-runner --retryCount 0 --logLevel DEBUG'
 # group - ALU
 # -----
 
+# on EBS:
 #real2m33.342s
 #user0m2.992s
 #sys0m0.419s
 # - 103K output
+
+# on SSD:
+#real2m34.583s
+#user0m3.050s
+#sys0m0.423s
 
 #time $RUNNER \
 # --jobStore aws:us-east-1:toil-tjs1 \
@@ -161,9 +181,15 @@ export RUNNER='toil-cwl-runner --retryCount 0 --logLevel DEBUG'
 # group - SVA
 # -----
 
+# on EBS:
 #real0m30.393s
 #user0m2.415s
 #sys0m0.325s
+
+# on SSD:
+#real0m30.982s
+#user0m2.367s
+#sys0m0.344s
 
 #time $RUNNER \
 # --jobStore aws:us-east-1:toil-tjs1 \
@@ -175,15 +201,25 @@ export RUNNER='toil-cwl-runner --retryCount 0 --logLevel DEBUG'
 # gen
 # -----
 
+# on EBS:
 #real19m26.760s
 #user0m7.910s
 #sys0m0.976s
 
-time $RUNNER \
- --jobStore aws:us-east-1:toil-tjs1 \
- --logFile melt-split-step-3.log \
- --batchSystem mesos \
- melt-split-step-3.cwl NA12878-config/melt-split-step-3.yml
+# on SSD:
+#real6m3.594s
+#user0m4.053s
+#sys0m0.500s
+
+#real6m19.230s
+#user0m4.165s
+#sys0m0.581s
+
+#time $RUNNER \
+# --jobStore aws:us-east-1:toil-tjs1 \
+# --logFile melt-split-step-3.log \
+# --batchSystem mesos \
+# melt-split-step-3.cwl NA12878-config/melt-split-step-3.yml
 
 # -----
 # vcf - LINE1
@@ -192,6 +228,10 @@ time $RUNNER \
 #real0m22.407s
 #user0m2.252s
 #sys0m0.333s
+
+#real0m22.796s
+#user0m2.249s
+#sys0m0.350s
 
 #time $RUNNER \
 # --jobStore aws:us-east-1:toil-tjs1 \
@@ -203,9 +243,15 @@ time $RUNNER \
 # vcf - ALU
 # -----
 
+# EBS:
 #real0m23.522s
 #user0m2.303s
 #sys0m0.286s
+
+# SSD:
+#real0m22.532s
+#user0m2.258s
+#sys0m0.313s
 
 #time $RUNNER \
 # --jobStore aws:us-east-1:toil-tjs1 \
@@ -217,9 +263,15 @@ time $RUNNER \
 # vcf - SVA
 # -----
 
+# EBS:
 #real0m22.501s
 #user0m2.287s
 #sys0m0.312s
+
+# SSD:
+#real0m23.159s
+#user0m2.278s
+#sys0m0.306s
 
 #time $RUNNER \
 # --jobStore aws:us-east-1:toil-tjs1 \
