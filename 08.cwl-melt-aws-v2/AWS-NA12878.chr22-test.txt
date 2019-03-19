@@ -1,0 +1,5 @@
+
+# copy files
+tar czvf test.tar.gz *.cwl *.yml run-test.sh run-10-samples.sh config NA12878-config 10-samples-config
+toil rsync-cluster -z us-east-1a tcm1 test.tar.gz :/root/
+
