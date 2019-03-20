@@ -8,7 +8,7 @@ requirements:
     outdirMin: 15000
     coresMin: 1
   DockerRequirement:
-    dockerImageId: 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt
+    dockerPull: 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt
     dockerOutputDirectory: /toil
   InlineJavascriptRequirement: {}
   InitialWorkDirRequirement:
@@ -19,8 +19,8 @@ requirements:
         return all_files;
        }
 
-baseCommand: ["cwltool"]
-arguments: ["--debug", "melt-split-pre-mosdepth-cov-ind.cwl"]
+baseCommand: ["cwltool_then_clean_tmp"]
+arguments: ["melt-split-pre-mosdepth-cov-ind.cwl"]
 
 inputs:
   melt_config_file:

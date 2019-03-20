@@ -20,8 +20,8 @@ requirements:
         return all_files;
        }
 
-baseCommand: ["cwltool"]
-arguments: ["--debug", "melt-split-gen.cwl"]
+baseCommand: ["cwltool_then_clean_tmp"]
+arguments: ["melt-split-gen.cwl"]
 
 inputs:
   melt_config_file:

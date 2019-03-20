@@ -1,0 +1,5 @@
+#!/bin/bash
+cwltool "$@"
+res=$?
+/bin/rm -rf /tmp/*
+exit $res
