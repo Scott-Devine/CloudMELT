@@ -13,6 +13,13 @@ export RUNNER='toil-cwl-runner --retryCount 0 --logLevel DEBUG'
 # combined cost = 0.2024/hour
 # --------------------------------------------
 
+#toil launch-cluster tcm1 --leaderNodeType t2.small --zone us-east-1a --keyPairName kp1 --nodeTypes i3.large -w 1
+#aws ecr get-login --region us-east-1 --no-include-email
+# run docker login on leaderNode
+# distribute /root/.docker/config.json
+#tar czvf test.tar.gz *.cwl *.yml run-test.sh run-10-samples.sh config NA12878-config 10-samples-config
+#toil rsync-cluster -z us-east-1a tcm1 test.tar.gz :/root/
+
 #NA12829, NA12830, NA12842, NA12843, NA12872, NA12873, NA12874, NA12878, NA12889, NA12890 
 
 # -----
