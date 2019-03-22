@@ -1,0 +1,2 @@
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12878/alignment/NA12878.mapped.ILLUMINA.bwa.CEU.low_coverage.20121211.bam
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12890/alignment/NA12890.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam

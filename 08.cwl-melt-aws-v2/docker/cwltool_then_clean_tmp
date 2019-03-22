@@ -1,5 +1,7 @@
 #!/bin/bash
-cwltool "$@"
+uid=$(echo $@ | md5sum - | awk '{print $1}')
+mkdir /tmp/$uid
+cwltool --tmpdir-prefix /tmp/$uid/ --tmp-outdir-prefix /tmp/$uid/ "$@"
 res=$?
-/bin/rm -rf /tmp/*
+/bin/rm -rf /tmp/$uid/*
 exit $res
