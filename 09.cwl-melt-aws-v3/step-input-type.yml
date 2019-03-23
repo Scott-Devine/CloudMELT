@@ -1,5 +1,5 @@
 type: record
-name: Step2Input
+name: StepInput
 fields:
   - name: melt_config_file
     type: File

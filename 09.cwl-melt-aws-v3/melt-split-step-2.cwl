@@ -7,7 +7,7 @@ requirements:
   SubworkflowFeatureRequirement: {}
   SchemaDefRequirement:
     types:
-      - $import: step2-input-type.yml
+      - $import: step-input-type.yml
 
 inputs:
   cwl_files:
@@ -17,7 +17,7 @@ inputs:
   transposons:
     type:
       type: array
-      items: step2-input-type.yml#Step2Input
+      items: step-input-type.yml#StepInput
 
 outputs:
   pre_geno_files:
@@ -34,5 +34,6 @@ steps:
     in:
       cwl_files: cwl_files
       transposon: transposons
+      input_files: 
     out: [pre_geno_file]
 

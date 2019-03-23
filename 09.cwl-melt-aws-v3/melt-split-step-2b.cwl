@@ -21,21 +21,19 @@ requirements:
        }
   SchemaDefRequirement:
     types:
-      - $import: step2-input-type.yml
+      - $import: step-input-type.yml
 
 baseCommand: ["cwltool_then_clean_tmp"]
-arguments: ["melt-grp.cwl"]
+arguments:
+  - valueFrom: "melt-grp.cwl"
+  - valueFrom: $(inputs.transposon.melt_config_file)
 
 inputs:
-  melt_config_file:
-    type: File
-    inputBinding:
-      position: 1
   cwl_files:
     type:
       type: array
       items: File
-  transposon: step2-input-type.yml#Step2Input
+  transposon: step-input-type.yml#StepInput
 
 outputs:
   pre_geno_file:
