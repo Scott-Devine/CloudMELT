@@ -1,0 +1,7 @@
+type: record
+name: TransposonPreGeno
+fields:
+  - name: zip
+    type: File
+  - name: pre_geno
+    type: File

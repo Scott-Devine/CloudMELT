@@ -1,0 +1,10 @@
+type: record
+name: Step2Input
+fields:
+  - name: melt_config_file
+    type: File
+  - name: input_files
+    type:
+      type: array
+      items: File
+
