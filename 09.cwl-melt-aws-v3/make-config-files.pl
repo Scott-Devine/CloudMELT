@@ -5,7 +5,7 @@ use FileHandle;
 use File::Spec;
 
 ## globals
-my $USAGE = "Usage: $0 step1_conf step2_conf sample_list dest_dir sample_regex";
+my $USAGE = "Usage: $0 step1_conf step2_conf step3_conf step4_conf sample_list dest_dir sample_regex";
 
 my $OUTDIR = "/toil/";
 my $INDIR = "../";
@@ -20,15 +20,19 @@ my $CWL_FILES = {
     'step2' => [ 'melt-grp.cwl',
 		 'step-input-type.yml'],
     'step3' => [ 'melt-split-gen.cwl',
-		 'melt-gen.wl',
-		 'transposon-file-type.yml'],
-    'step4' => [ 'melt-vcf.cwl' ]
+		 'melt-gen.cwl',
+		 'transposon-file-type.yml',
+		 'step-input-type.yml'],
+    'step4' => [ 'melt-vcf.cwl',
+		 'step-input-type.yml']
 };
 
 ## input
 my $config_files = {};
 $config_files->{'step1'} = shift || die $USAGE;
 $config_files->{'step2'} = shift || die $USAGE;
+$config_files->{'step3'} = shift || die $USAGE;
+$config_files->{'step4'} = shift || die $USAGE;
 my $sample_list_file = shift || die $USAGE;
 my $dest_dir = shift || die $USAGE;
 my $sample_regex = shift || '([A-Z0-9]+)\.mapped';
@@ -67,7 +71,7 @@ my $transposons = [];
 my $configs = {};
 my $in_transposons = 0;
 
-foreach my $step ('step1', 'step2') {
+foreach my $step ('step1', 'step2', 'step3', 'step4') {
     my $cfile = $config_files->{$step};
     $configs->{$step} = "";
 
@@ -110,7 +114,17 @@ foreach my $step (1..4) {
     print $fh "cwl_files:\n";
     print $fh join("\n", map {" - { class: File, path: ../" . $_ . "}"} @{$CWL_FILES->{"step${step}"}});
     print $fh "\n";
-    print $fh "melt_config_files:\n" if ($step != 2);
+    if ($step == 1) {
+	print $fh "melt_config_files:\n";
+    } else {
+	print $fh "transposons:\n";
+    }
+}
+
+# step 2 output files - pre_geno.tsv files
+my $pre_geno_files = [];
+foreach my $t (@$transposons) {
+    push(@$pre_geno_files, "{ class: File, path: ../" . $t->{'name'} . ".pre_geno.tsv }");
 }
 
 # per-sample config files
@@ -126,6 +140,19 @@ foreach my $u (@$sample_list) {
     $cfh->print($configs->{'step1'});
     $cfh->close();
     $m_fhs->{'step1'}->print(" - { class: File, path: $sample_config }\n");
+
+    # step 3
+    my $step3_config = "step-3-gen-" . $u->{'sample'} . ".yml";
+    my $step3_config_path = File::Spec->catfile($dest_dir, $step3_config);
+    my $cfh = FileHandle->new();
+    $cfh->open(">$step3_config_path") || die "unable to write to $step3_config_path";
+    $cfh->print("reads_bam_uri: " . $u->{'uri'}. "\n");
+    $cfh->print($configs->{'step3'});
+    $cfh->close();
+
+    $m_fhs->{'step3'}->print(" - { melt_config_file: { class: File, path: $step3_config }, input_files: [");
+    $m_fhs->{'step3'}->print(join(",", @$pre_geno_files));
+    $m_fhs->{'step3'}->print(" ]}\n");
 }
 
 # report files that should be returned by step1 for a specific transposon
@@ -154,20 +181,17 @@ my $print_comma_delim_file_list = sub {
     $fh->print(join(",", map {"{ class: File, path: ${prefix}$_ }"} @$files));
 };
 
-
 # per-transposon config files
-$m_fhs->{'step2'}->print("transposons:\n");
-
 foreach my $t (@$transposons) {
 
     # step 2
-    my $transposon_config = "step-2-grp-" . $t->{'name'} . ".yml";
-    my $transposon_config_path = File::Spec->catfile($dest_dir, $transposon_config);
+    my $step2_config = "step-2-grp-" . $t->{'name'} . ".yml";
+    my $step2_config_path = File::Spec->catfile($dest_dir, $step2_config);
     my $cfh = FileHandle->new();
-    $cfh->open(">$transposon_config_path") || die "unable to write to $transposon_config_path";
+    $cfh->open(">$step2_config_path") || die "unable to write to $step2_config_path";
 
     # step2 master file
-    $m_fhs->{'step2'}->print(" - { melt_config_file: { class: File, path: $transposon_config }, input_files: [");
+    $m_fhs->{'step2'}->print(" - { melt_config_file: { class: File, path: $step2_config }, input_files: [");
 
     # step2 template
     $cfh->print($configs->{'step2'});
@@ -203,6 +227,34 @@ foreach my $t (@$transposons) {
     # step2 master file
     &$print_comma_delim_file_list($m_fhs->{'step2'}, 'input_files', $step2_input_files, $INDIR);
     $m_fhs->{'step2'}->print("]}\n");
+
+    # step4 template
+    my $step4_config = "step-4-vcf-" . $t->{'name'} . ".yml";
+    my $step4_config_path = File::Spec->catfile($dest_dir, $step4_config);
+    my $cfh = FileHandle->new();
+    $cfh->open(">$step4_config_path") || die "unable to write to $step4_config_path";
+    $cfh->print($configs->{'step4'});
+    # add transposon_zip_file
+    $cfh->print("transposon_zip_file: { class: File, path: " . $t->{'zip_file'} . "}\n");
+
+    # step4 master file
+    $m_fhs->{'step4'}->print(" - { melt_config_file: { class: File, path: $step4_config }, input_files: [");
+
+    my $step4_input_files = [];
+    my $geno_files = &$get_step1_files($t->{'name'}, ['tsv']);
+    # pre_geno_file
+    $cfh->print("pre_geno_file: { class: File, path: /toil/" . $t->{'name'} . ".pre_geno.tsv }\n");
+    push(@$step4_input_files, $t->{'name'} . ".pre_geno.tsv");
+
+    # geno files
+    &$print_file_list($cfh, 'geno_files', $geno_files, $OUTDIR);
+    push(@$step4_input_files, @$geno_files);
+    $cfh->close();
+
+    # step4 master file
+    &$print_comma_delim_file_list($m_fhs->{'step4'}, 'input_files', $step4_input_files, $INDIR);
+    $m_fhs->{'step4'}->print("]}\n");
+    
 }
 
 # close master filehandles

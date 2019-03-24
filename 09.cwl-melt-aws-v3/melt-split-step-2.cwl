@@ -28,12 +28,11 @@ outputs:
 
 steps:
 
-  step1b:
+  step2b:
     run: melt-split-step-2b.cwl
-    scatter: transposons
+    scatter: transposon
     in:
       cwl_files: cwl_files
       transposon: transposons
-      input_files: 
     out: [pre_geno_file]
 

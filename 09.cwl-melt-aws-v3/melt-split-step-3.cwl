@@ -5,29 +5,35 @@ requirements:
   InlineJavascriptRequirement: {}
   ScatterFeatureRequirement: {}
   SubworkflowFeatureRequirement: {}
+  SchemaDefRequirement:
+    types:
+      - $import: step-input-type.yml
 
 inputs:
   cwl_files:
     type:
       type: array
       items: File
-  melt_config_files:
-    type: File
-    inputBinding:
-      position: 1
+  transposons:
+    type:
+      type: array
+      items: step-input-type.yml#StepInput
 
 outputs:
   geno_files:
     type:
       type: array
-      items: File
-    outputBinding: 
-      glob: ["*.LINE1.tsv", "*.SVA.tsv", "*.ALU.tsv", "*.HERVK.tsv"]
+      items:
+        type: array
+        items: File
+    outputSource: step3b/geno_files
 
-  step1b:
+steps:
+
+  step3b:
     run: melt-split-step-3b.cwl
-    scatter: melt_config_file
+    scatter: transposon
     in:
-      melt_config_file: melt_config_files
       cwl_files: cwl_files
+      transposon: transposons
     out: [geno_files]

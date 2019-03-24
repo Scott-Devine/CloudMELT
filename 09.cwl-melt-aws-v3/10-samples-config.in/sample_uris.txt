@@ -1,2 +1,10 @@
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12829/alignment/NA12829.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12830/alignment/NA12830.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12842/alignment/NA12842.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12843/alignment/NA12843.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12872/alignment/NA12872.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12873/alignment/NA12873.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12874/alignment/NA12874.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
 http://s3.amazonaws.com/1000genomes/phase3/data/NA12878/alignment/NA12878.mapped.ILLUMINA.bwa.CEU.low_coverage.20121211.bam
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12889/alignment/NA12889.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
 http://s3.amazonaws.com/1000genomes/phase3/data/NA12890/alignment/NA12890.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
