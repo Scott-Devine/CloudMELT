@@ -12,10 +12,12 @@ my $INDIR = "../";
 
 # cwl and yml files needed by each step
 my $CWL_FILES = {
-    'step1' => ['melt-split-pre-mosdepth-cov-ind.cwl',
+    'step1' => ['melt-split-pre-mosdepth-cov-ind.cwl', # includes both coverage methods
+		'melt-split-pre-user-cov-ind.cwl',
 		'melt-pre.cwl',
 		'melt-cov-mosdepth.cwl',
 		'mosdepth.cwl',
+		'melt-cov-user.cwl',
 		'melt-ind.cwl'],
     'step2' => [ 'melt-grp.cwl',
 		 'step-input-type.yml'],
