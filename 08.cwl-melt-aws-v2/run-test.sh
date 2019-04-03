@@ -4,7 +4,22 @@
 export RUNNER='toil-cwl-runner --retryCount 0 --logLevel DEBUG'
 
 # Mac OS X - specific workaround for Docker tasks
-#export TMPDIR="/private${TMPDIR}"
+export TMPDIR="/private${TMPDIR}"
+
+# --------------------------------------------
+# test cwltool cleanup
+# --------------------------------------------
+
+#time $RUNNER \
+#   --jobStore aws:us-east-1:toil-tjs1 \
+#   --logFile melt-split-step-1.log \
+#   --batchSystem mesos \
+#  melt-split-step-1.cwl 10-samples-config/step-1-NA12878.yml
+#exit
+
+# local
+$RUNNER melt-split-step-1.cwl 10-samples-config/step-1-NA12878.yml
+exit
 
 # --------------------------------------------
 # test locally on toil Docker image

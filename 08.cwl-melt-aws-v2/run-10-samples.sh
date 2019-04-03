@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#export TOIL_DOCKER_NAME=toil
+
+export TOIL_DOCKER_REGISTRY=docker.io/umigs
+export TOIL_APPLIANCE_SELF=docker.io/umigs/toil-custom:1.0.0
+
 #export RUNNER='toil-cwl-runner --retryCount 0'
 export RUNNER='toil-cwl-runner --retryCount 0 --logLevel DEBUG'
 
