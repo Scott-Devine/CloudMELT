@@ -98,7 +98,9 @@ when the pipeline is running.
 
 CloudMELT is configured using the same YAML (.yml) file format supported by the Common Workflow Language.
 For MELT-Split the user must provide a .yml configuration file for each of the 4 steps of the MELT-Split
-pipeline. Download the 4 configuration files for our 10 sample example from [examples/1000genomes-10-samples/config.in/][config_dir]:
+pipeline. Download the 4 configuration files for our 10 sample example from [examples/1000genomes-10-samples/config.in/][config_dir]
+and place them into a subdirectory called "config.in" (or simply copy this directory from the CloudMELT 
+source into your working directory):
 
  1. [step-1-pre.yml]
  2. [step-2-grp.yml]
@@ -155,6 +157,16 @@ ref_fasta_file:
   class: File
   path: /opt/MELTv2.1.5/reference/hs37d5.fa
 ```
+
+Note that:
+
+* Each item in a configuration file (e.g., ref_fasta_file) corresponds to a MELT command-line argument, although the names have been
+changed to be more descriptive.
+* Just as some MELT steps require the same inputs (e.g., ref_fasta_file, ref_bed_file/genes_bed_file), some arguments are repeated across the config files.
+* All of the file paths that start with "/opt" are relative _to the Docker container_ in which MELT, Bowtie, and mosdepth are installed.
+* An exception is step-3, where some paths "/toil/LINE1.pre_geno.tsv" are relative to the Amazon EC2 instance (because LINE1.pre_geno.tsv is not a predefined file, it is an output from the previous step.)
+* MELT (and the corresponding CWL workflows) support other parameters that aren't used in these particular config files.
+
 
 ### Run CloudMELT script to create pipeline
 
