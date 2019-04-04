@@ -45,6 +45,21 @@ export RUNNER='toil-cwl-runner --retryCount 0'
 # avg time per sample - ~8.9m (~162 samples/day/node)
 # cost per sample - ~9.9 cents
 
+# 10 samples end-to-end, mosdepth (3 i3.xlarge/4 proc)
+# t2.medium (0.0464), 3 i3.xlarge (0.312 x 3) = $1.01/hour
+#
+# step 1:
+#  real57m57.667s
+#  user0m26.890s
+#  sys0m5.721s
+#
+# steps 2-4:
+#  real22m59.739s
+#  user0m25.381s
+#  sys0m4.538s
+# avg time per sample - ~8.1m
+# cost per sample - 13.6 cents
+
 # --------------------------------------------
 # Test on AWS with mesos
 # LINE1, ALU for 10 samples
@@ -53,7 +68,7 @@ export RUNNER='toil-cwl-runner --retryCount 0'
 # --------------------------------------------
 
 #toil launch-cluster tcm1 --leaderNodeType t2.medium --zone us-east-1a --keyPairName kp1 --nodeTypes i3.large -w 1
-#oaws ecr get-login --region us-east-1 --no-include-email
+#aws ecr get-login --region us-east-1 --no-include-email
 
 # --------------------------------------------
 # Test on AWS with mesos
@@ -163,11 +178,12 @@ export RUNNER='toil-cwl-runner --retryCount 0'
 #  10-samples-config.in/sample_uris_1.txt \
 #  10-samples-config.out/
 
-time $RUNNER \
-  --jobStore aws:us-east-1:toil-tjs1 \
-  --logFile melt-split-step-1.log \
-  --batchSystem mesos \
-melt-split-step-1.cwl 10-samples-config.out/step-1.yml 2> melt-step-times.log
+#time $RUNNER \
+#  --jobStore aws:us-east-1:toil-tjs1 \
+#  --logFile melt-split-step-1.log \
+#  --batchSystem mesos \
+#melt-split-step-1.cwl 10-samples-config.out/step-1.yml
+#exit
 
 # --------------------------------------------
 # group - LINE1, ALU etc.
@@ -181,7 +197,7 @@ time $RUNNER \
  --jobStore aws:us-east-1:toil-tjs1 \
  --logFile melt-split-step-2.log \
  --batchSystem mesos \
-melt-split-step-2.cwl 10-samples-config.out/step-2.yml 2> melt-step-times.log
+melt-split-step-2.cwl 10-samples-config.out/step-2.yml
 
 # --------------------------------------------
 # gen
@@ -196,7 +212,7 @@ time $RUNNER \
  --jobStore aws:us-east-1:toil-tjs1 \
  --logFile melt-split-step-3.log \
  --batchSystem mesos \
-melt-split-step-3.cwl 10-samples-config.out/step-3.yml 2> melt-step-times.log
+melt-split-step-3.cwl 10-samples-config.out/step-3.yml
 
 # --------------------------------------------
 # vcf
@@ -211,7 +227,5 @@ time $RUNNER \
  --jobStore aws:us-east-1:toil-tjs1 \
  --logFile melt-split-step-4.log \
  --batchSystem mesos \
- melt-split-step-4.cwl 10-samples-config.out/step-4.yml 2> melt-step-times.log
-
-
+ melt-split-step-4.cwl 10-samples-config.out/step-4.yml
 
