@@ -45,18 +45,22 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 
 ## Running a MELT-Split analysis
 
+This section provides a detailed walkthrough of running CloudMELT on 10 low-coverage samples
+from the 1000 Genomes Project. All of the necessary configuration files can be found in 
+[examples/1000genomes-10-samples/][].
+
 ### Obtain a copy of the CloudMELT code
 
 Obtain a copy of this repository by downloading the latest release from the 
 [releases page][rel_page] or by cloning the current master branch of the repository 
 using the green "Clone or download" dropwdown menu towards the top of the [GitHub page][melt_github].
 
-*NOTE FOR IGS USERS:* The CloudMELT code has been installed on all IGS machines at ??? (TODO)
+**NOTE FOR IGS USERS:** The CloudMELT code has been installed on all IGS machines at ??? (TODO)
 
 [rel_page]: https://github.com/jonathancrabtree/CloudMELT/releases
 [melt_github]: https://github.com/jonathancrabtree/CloudMELT
 
-### Create a local workspace
+### Create a local working directory
 
 Create a directory to hold the CloudMELT workflow and output files from AWS:
 
@@ -65,7 +69,7 @@ user@local_machine$ mkdir cloud_melt_run
 user@local_machine$ cd cloud_melt_run
 ```
 
-### Create BAM file list
+### Create/download BAM file list
 
 Use your favorite editor to create a list of BAM files to process. Currently these must be specified
 as http or https URIs that can be retrieved from an AWS node via `curl` or `wget`. For example,
@@ -80,8 +84,21 @@ http://s3.amazonaws.com/1000genomes/phase3/data/NA12830/alignment/NA12830.mapped
 __NOTE:__ CloudMELT assumes that each .bam file in the list has a corresponding .bai file and will
 attempt to construct a URI for the .bai file by appending ".bai" to the end of the .bam URI.
 
-### Run CloudMELT script to create configuration files
+Download the following file to your local working directory: [examples/1000genomes-10-samples/sample_uris.txt][].
+It contains 10 low-coverage samples from the 1000 Genomes Project, all of them hosted on S3.
 
+__NOTE:__ It is preferable to use BAM files hosted on S3 for CloudMELT to minimize download times
+when the pipeline is running.
+
+### Create/download MELT CWL configuration files
+
+
+
+
+### Run CloudMELT script to create pipeline
+
+-edit workflow master script (optional)
+-create tarball of the workflow
 
 
 ### Run Toil command to create a static compute cluster on EC2
@@ -97,10 +114,6 @@ attempt to construct a URI for the .bai file by appending ".bai" to the end of t
     -this ensures that the cwltool jobs that run on each instance will use the ephemeral storage (i.e., large SSD)
    -runs docker login
    -pulls the docker image containing MELT, Bowtie, and the reference database(s)
-
-### Edit workflow master script (optional)
-
-### Create tarball of the workflow
 
 ### Run toil rsync-cluster to copy tarball to Toil leader node
 
