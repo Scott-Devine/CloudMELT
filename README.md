@@ -18,29 +18,29 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 ## Prerequisites
 
 1. A correctly-configured AWS account
-
+  
   You will need an AWS account set up to run Toil jobs. First, follow the directions in the
   Toil documentation in the section entitled ["Preparing your AWS environment"][toil_aws_prep]
   Note that if the account you're using does not have full administrative privileges then
   you may need to ask your AWS administrator to grant you a number of IAM privileges before 
   you will be able to launch AWS clusters with Toil.
-
+  
   *NOTE FOR IGS USERS:* You may already have an AWS account with an AWS Access Key ID and AWS
   Secret Access Key provided by your AWS administrator. In this case simply omit the relevant
   steps from "Preparing your AWS environment." You will probably still need to subscribe to 
   the Container Linux by CoreOS AMI and may also need to generate an RSA key pair if you do
   not already have one. The IAM AWS permissions required to run Toil workflows are enumerated/
   discussed in https://jira.igs.umaryland.edu/browse/ENG-3589.
-
+  
 2. A local installation of Toil
-
+  
   This tutorial assumes that Toil has been installed locally, as described in the Toil 
   [installation documentation][toil_install]. Note that it must be installed with at
   least the following Toil "extras" to enable support for running CWL workflows on Amazon 
   EC2: `aws,mesos,cwl`
-
+  
 *NOTE FOR IGS USERS:* Toil has been installed on all IGS machines at ??? (TODO)
-
+  
 [toil_aws_prep]: https://toil.readthedocs.io/en/latest/running/cloud/amazon.html
 [toil_install]: https://toil.readthedocs.io/en/latest/gettingStarted/install.html
 [toil_aws]: https://toil.readthedocs.io/en/latest/running/cloud/amazon.html#runningaws
