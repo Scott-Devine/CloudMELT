@@ -47,9 +47,7 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 
 This section provides a detailed walkthrough of running CloudMELT on 10 low-coverage samples
 from the 1000 Genomes Project. All of the necessary configuration files can be found in 
-[examples/1000genomes-10-samples/sample_uris.txt][sample_list].
-
-[sample_list]: examples/1000genomes-10-samples/sample_uris.txt
+[examples/1000genomes-10-samples/][].
 
 ### Obtain a copy of the CloudMELT code
 
@@ -86,8 +84,10 @@ http://s3.amazonaws.com/1000genomes/phase3/data/NA12830/alignment/NA12830.mapped
 __NOTE:__ CloudMELT assumes that each .bam file in the list has a corresponding .bai file and will
 attempt to construct a URI for the .bai file by appending ".bai" to the end of the .bam URI.
 
-Download the following file to your local working directory: [examples/1000genomes-10-samples/sample_uris.txt][].
+Download the following file to your local working directory: [examples/1000genomes-10-samples/sample_uris.txt][sample_list].
 It contains 10 low-coverage samples from the 1000 Genomes Project, all of them hosted on S3.
+
+[sample_list]: examples/1000genomes-10-samples/sample_uris.txt
 
 __NOTE:__ It is preferable to use BAM files hosted on S3 for CloudMELT to minimize download times
 when the pipeline is running.
