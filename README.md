@@ -23,7 +23,7 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
   Note that if the account you're using does not have full administrative privileges then
   you may need to ask your AWS administrator to grant you a number of IAM privileges before 
   you will be able to launch AWS clusters with Toil.  
-
+  
   **NOTE FOR IGS USERS:** You may already have an AWS account with an AWS Access Key ID and AWS
   Secret Access Key provided by your AWS administrator. In this case simply omit the relevant
   steps from "Preparing your AWS environment." You will probably still need to subscribe to 
@@ -36,7 +36,7 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
   [installation documentation][toil_install]. Note that it must be installed with at
   least the following Toil "extras" to enable support for running CWL workflows on Amazon 
   EC2: `aws,mesos,cwl`  
-
+  
   **NOTE FOR IGS USERS:** Toil has been installed on all IGS machines at ??? (TODO)
   
 [toil_aws_prep]: https://toil.readthedocs.io/en/latest/running/cloud/amazon.html
@@ -47,7 +47,9 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 
 This section provides a detailed walkthrough of running CloudMELT on 10 low-coverage samples
 from the 1000 Genomes Project. All of the necessary configuration files can be found in 
-[examples/1000genomes-10-samples/].
+[examples/1000genomes-10-samples/][example].
+
+[example]: examples/1000genomes-10-samples/
 
 ### Obtain a copy of the CloudMELT code
 
@@ -69,12 +71,17 @@ user@local_machine$ mkdir cloud_melt_run
 user@local_machine$ cd cloud_melt_run
 ```
 
-### Create/download BAM file list
+### Download/create BAM file list
 
-Use your favorite editor to create a list of BAM files to process. Currently these must be specified
-as http or https URIs that can be retrieved from an AWS node via `curl` or `wget`. For example,
-here is a BAM file list that consists of two low-coverage samples from the 1000 Genomes data hosted on
-Amazon S3:
+Download the following file to your local working directory: [examples/1000genomes-10-samples/sample_uris.txt][sample_list].
+It contains 10 low-coverage samples from the 1000 Genomes Project, all of them hosted on S3.
+
+[sample_list]: examples/1000genomes-10-samples/sample_uris.txt
+
+Or, use your favorite editor to create a list of BAM files to process. Currently these must be specified
+as http or https URIs that can be retrieved from an AWS node via `curl` or `wget`. For example, here are
+two of the low-coverage BAM files from the above list, which consists of 10 samples from the 1000 Genomes
+data hosted on Amazon S3:
 
 ```
 http://s3.amazonaws.com/1000genomes/phase3/data/NA12829/alignment/NA12829.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
@@ -84,18 +91,70 @@ http://s3.amazonaws.com/1000genomes/phase3/data/NA12830/alignment/NA12830.mapped
 __NOTE:__ CloudMELT assumes that each .bam file in the list has a corresponding .bai file and will
 attempt to construct a URI for the .bai file by appending ".bai" to the end of the .bam URI.
 
-Download the following file to your local working directory: [examples/1000genomes-10-samples/sample_uris.txt][sample_list].
-It contains 10 low-coverage samples from the 1000 Genomes Project, all of them hosted on S3.
-
-[sample_list]: examples/1000genomes-10-samples/sample_uris.txt
-
 __NOTE:__ It is preferable to use BAM files hosted on S3 for CloudMELT to minimize download times
 when the pipeline is running.
 
-### Create/download MELT CWL configuration files
+### Create/download CloudMELT configuration files
 
+CloudMELT is configured using the same YAML (.yml) file format supported by the Common Workflow Language.
+For MELT-Split the user must provide a .yml configuration file for each of the 4 steps of the MELT-Split
+pipeline. Download the 4 configuration files for our 10 sample example from [examples/1000genomes-10-samples/config.in/][config_dir]:
 
+ 1. [step-1-pre.yml]
+ 2. [step-2-grp.yml]
+ 3. [step-3-gen.yml]
+ 4. [step-4-vcf.yml]
 
+[config_dir]: examples/1000genomes-10-samples/config.in/
+[step-1-pre.yml]: examples/1000genomes-10-samples/config.in/step-1-pre.yml
+[step-2-grp.yml]: examples/1000genomes-10-samples/config.in/step-2-grp.yml
+[step-3-gen.yml]: examples/1000genomes-10-samples/config.in/step-3-gen.yml
+[step-4-vcf.yml]: examples/1000genomes-10-samples/config.in/step-4-vcf.yml
+
+Let's look at the content of these files:
+
+step-1-pre.yml:
+
+```
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/hs37d5.fa
+genes_bed_file: 
+  class: File
+  path: /opt/MELTv2.1.5/add_bed_files/1KGP_Hg19/hg19.genes.bed
+excluded_chromosomes: hs37d5/NC_007605
+transposon_zip_files: 
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/LINE1_MELT.zip }
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/ALU_MELT.zip }
+min_coverage: 4
+```
+
+step-2-grp.yml:
+```
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/hs37d5.fa
+ref_bed_file: 
+  class: File
+  path: /opt/MELTv2.1.5/add_bed_files/1KGP_Hg19/hg19.genes.bed
+```
+
+step-3-gen.yml:
+```
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/hs37d5.fa
+transposon_files:
+  - { pre_geno: { class: File, path: /toil/LINE1.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/LINE1_MELT.zip }}
+  - { pre_geno: { class: File, path: /toil/ALU.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/ALU_MELT.zip }}
+```
+
+step-4-vcf.yml:
+```
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/hs37d5.fa
+```
 
 ### Run CloudMELT script to create pipeline
 
@@ -153,6 +212,7 @@ May need to delete the job store before restarting.
 
 Include link to customer support form.
 
+## Building/exporting CloudMELT Docker container
 
 ## Limitations/Caveats
 

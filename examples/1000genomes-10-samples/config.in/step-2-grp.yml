@@ -1,0 +1,6 @@
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/hs37d5.fa
+ref_bed_file: 
+  class: File
+  path: /opt/MELTv2.1.5/add_bed_files/1KGP_Hg19/hg19.genes.bed
