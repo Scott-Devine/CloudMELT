@@ -47,7 +47,9 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 
 This section provides a detailed walkthrough of running CloudMELT on 10 low-coverage samples
 from the 1000 Genomes Project. All of the necessary configuration files can be found in 
-[examples/1000genomes-10-samples/][].
+[examples/1000genomes-10-samples/sample_uris.txt][sample_list].
+
+[sample_list]: examples/1000genomes-10-samples/sample_uris.txt
 
 ### Obtain a copy of the CloudMELT code
 
