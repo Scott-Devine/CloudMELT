@@ -23,6 +23,7 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
   Note that if the account you're using does not have full administrative privileges then
   you may need to ask your AWS administrator to grant you a number of IAM privileges before 
   you will be able to launch AWS clusters with Toil.  
+
   **NOTE FOR IGS USERS:** You may already have an AWS account with an AWS Access Key ID and AWS
   Secret Access Key provided by your AWS administrator. In this case simply omit the relevant
   steps from "Preparing your AWS environment." You will probably still need to subscribe to 
@@ -35,6 +36,7 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
   [installation documentation][toil_install]. Note that it must be installed with at
   least the following Toil "extras" to enable support for running CWL workflows on Amazon 
   EC2: `aws,mesos,cwl`  
+
   **NOTE FOR IGS USERS:** Toil has been installed on all IGS machines at ??? (TODO)
   
 [toil_aws_prep]: https://toil.readthedocs.io/en/latest/running/cloud/amazon.html
@@ -47,21 +49,42 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 
 Obtain a copy of this repository by downloading the latest release from the 
 [releases page][rel_page] or by cloning the current master branch of the repository 
-using the green "Clone or download" dropwdown menu towards the top of the page.
+using the green "Clone or download" dropwdown menu towards the top of the [GitHub page][melt_github].
 
 *NOTE FOR IGS USERS:* The CloudMELT code has been installed on all IGS machines at ??? (TODO)
 
 [rel_page]: https://github.com/jonathancrabtree/CloudMELT/releases
+[melt_github]: https://github.com/jonathancrabtree/CloudMELT
 
 ### Create a local workspace
 
+Create a directory to hold the CloudMELT workflow and output files from AWS:
+
+```
+user@local_machine$ mkdir cloud_melt_run
+user@local_machine$ cd cloud_melt_run
+```
+
+### Create BAM file list
+
+Use your favorite editor to create a list of BAM files to process. Currently these must be specified
+as http or https URIs that can be retrieved from an AWS node via `curl` or `wget`. For example,
+here is a BAM file list that consists of two low-coverage samples from the 1000 Genomes data hosted on
+Amazon S3:
+
+```
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12829/alignment/NA12829.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
+http://s3.amazonaws.com/1000genomes/phase3/data/NA12830/alignment/NA12830.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
+```
+
+__NOTE:__ CloudMELT assumes that each .bam file in the list has a corresponding .bai file and will
+attempt to construct a URI for the .bai file by appending ".bai" to the end of the .bam URI.
+
+### Run CloudMELT script to create configuration files
 
 
-### Create list of sample BAM files
 
-### Run script to create configuration files
-
-### Run toil command to create a static compute cluster on EC2
+### Run Toil command to create a static compute cluster on EC2
 
 -Link to page showing EC2 spot instance costs
 -Link to page showing which instances are compatible with 
