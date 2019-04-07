@@ -1,59 +1,116 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
+
+=head1 NAME
+
+create_pipeline.pl - Create a CloudMELT pipeline to run a MELT-Split analysis on AWS EC2.
+
+=head1 SYNOPSIS
+
+  create_pipeline.pl
+         --sample_uri_list=./sample_list.txt
+         --config_in=./config.in
+         --config_out=./config.out
+       [ --sample_regex='([A-Z0-9]+)\.mapped'
+         ]
+
+=back
+
+=head1 DESCRIPTION
+
+Creates a CloudMELT pipeline to run a MELT-Split analysis on AWS EC2.
+
+=head1 CONTACT
+
+  Jonathan Crabtree
+  jcrabtree@som.umaryland.edu
+
+=cut
 
 use strict;
+use Getopt::Long qw(:config no_ignore_case no_auto_abbrev pass_through);
 use FileHandle;
 use File::Spec;
+use Pod::Usage;
 
 ## globals
-my $USAGE = "Usage: $0 step1_conf step2_conf step3_conf step4_conf sample_list dest_dir sample_regex";
-my $OUTDIR = "/toil/";
-my $INDIR = "../";
+my $DEFAULT_SAMPLE_REGEX = '([A-Z0-9]+)\.mapped';
+my $TOIL_INPUT_DIR = "../";
+my $TOIL_OUTPUT_DIR = "/toil/";
 
-# cwl and yml files needed by each step
-my $CWL_FILES = {
-    'step1' => ['melt-split-pre-mosdepth-cov-ind.cwl', # includes both coverage methods
-		'melt-split-pre-user-cov-ind.cwl',
-		'melt-pre.cwl',
-		'melt-cov-mosdepth.cwl',
-		'mosdepth.cwl',
-		'melt-cov-user.cwl',
-		'melt-ind.cwl'],
-    'step2' => [ 'melt-grp.cwl',
-		 'step-input-type.yml'],
-    'step3' => [ 'melt-split-gen.cwl',
-		 'melt-gen.cwl',
-		 'transposon-file-type.yml',
-		 'step-input-type.yml'],
-    'step4' => [ 'melt-vcf.cwl',
-		 'step-input-type.yml']
-};
+# list of workflow steps and associated files
+my $STEPS = [
+    { 
+	'name' => 'step1', 
+	'config_in' => 'step-1-pre.yml', 
+	'files' =>
+	    ['melt-split-pre-mosdepth-cov-ind.cwl', # includes both coverage methods
+	     'melt-split-pre-user-cov-ind.cwl',
+	     'melt-pre.cwl',
+	     'melt-cov-mosdepth.cwl',
+	     'mosdepth.cwl',
+	     'melt-cov-user.cwl',
+	     'melt-ind.cwl']
+    },
+    { 
+	'name' => 'step2',
+	'config_in' => 'step-2-grp.yml',
+	'files' => 
+	    [ 'melt-grp.cwl',
+	      'step-input-type.yml']
+    },
+    {
+	'name' => 'step3',
+	'config_in' => 'step-3-gen.yml',
+	'files' => 
+	    [ 'melt-split-gen.cwl',
+	      'melt-gen.cwl',
+	      'transposon-file-type.yml',
+	      'step-input-type.yml']
+    },
+    { 
+	'name' => 'step4',
+	'config_in' => 'step-4-vcf.yml',
+	'files' =>
+	    [ 'melt-vcf.cwl',
+	      'step-input-type.yml']
+    }
+    ];
+
+# index by name
+my $STEPS_H = {};
+map { $STEPS_H->{$_->{'name'}} = $_; } @$STEPS;
 
 ## input
-my $config_files = {};
-$config_files->{'step1'} = shift || die $USAGE;
-$config_files->{'step2'} = shift || die $USAGE;
-$config_files->{'step3'} = shift || die $USAGE;
-$config_files->{'step4'} = shift || die $USAGE;
-my $sample_list_file = shift || die $USAGE;
-my $dest_dir = shift || die $USAGE;
-my $sample_regex = shift || '([A-Z0-9]+)\.mapped';
+my $options = {};
+&GetOptions($options,
+	    "sample_uri_list=s",
+	    "config_in=s",
+	    "config_out=s",
+	    "sample_regex=s",
+            "help|h",
+            "man|m") || pod2usage();
+
+# check parameters/set defaults 
+&check_parameters($options);
 
 ## main program
 
 # --------------------------------------------
-# read sample_list_file, parse sample ids
+# read sample_uri_list, parse sample ids
 # --------------------------------------------
+my $sample_regex = $options->{'sample_regex'};
+my $sample_uri_list  = $options->{'sample_uri_list'};
 my $sample_list = [];
 my $samples = {};
 my $prefixes = {};
 
 my $fh = FileHandle->new();
-$fh->open($sample_list_file) || die "unable to read $sample_list_file";
+$fh->open($sample_uri_list) || die "unable to read $sample_uri_list";
 while (my $line = <$fh>) {
     chomp($line);
     if ($line =~ /\S/) {
 	my($sample) = ($line =~ /$sample_regex/);
-	die "couldn't parse sample id from $line" if (!defined($sample));
+	die "couldn't parse sample id from $line using --sample_regex $sample_regex" if (!defined($sample));
 	die "duplicate sample id $sample" if (defined($samples->{$sample}));
 	my($prefix) = ($line =~ /([^\/]+)\.bam$/);
 	die "couldn't parse file prefix from $line" if (!defined($prefix));
@@ -63,26 +120,25 @@ while (my $line = <$fh>) {
     }
 }
 $fh->close();
-print STDERR "INFO - read " . scalar(@$sample_list) . " sample(s) from $sample_list_file\n";
+print STDERR "INFO - read " . scalar(@$sample_list) . " sample(s) from $sample_uri_list\n";
 
 # --------------------------------------------
 # read config_files, parse transposons
 # --------------------------------------------
 my $transposons = [];
-my $configs = {};
 my $in_transposons = 0;
 
-foreach my $step ('step1', 'step2', 'step3', 'step4') {
-    my $cfile = $config_files->{$step};
-    $configs->{$step} = "";
+foreach my $step (@$STEPS) {
+    my $cpath = $step->{'config_in_path'};
+    $step->{'config'} = "";
 
-    $fh->open($cfile) || die "unable to read $step config file $cfile";
+    $fh->open($cpath) || die "unable to read $step config file $cpath";
     while (my $line = <$fh>) {
 	next if ($line =~ /^reads_bam_uri/);
-	$configs->{$step} .= $line;
+	$step->{'config'} .= $line;
 
 	# parse transposons from step-1-pre
-	if ($step eq 'step1') {
+	if ($step->{'name'} eq 'step1') {
 	    if ($line =~ /transposon_zip_files:/) {
 		$in_transposons = 1;
 		next;
@@ -99,21 +155,21 @@ foreach my $step ('step1', 'step2', 'step3', 'step4') {
 	    }
 	}
     }
+    print STDERR "INFO - read " . scalar(@$transposons) . " transposon(s) from " . $cpath . "\n" if ($step->{'name'} eq 'step1');
+    $fh->close();
 }
-
-print STDERR "INFO - read " . scalar(@$transposons) . " transposon(s) from " . $config_files->{'step1'} . "\n";
-$fh->close();
 
 # --------------------------------------------
 # init master config files
 # --------------------------------------------
 my $m_fhs = {};
-foreach my $step (1..4) {
-    my $fh = $m_fhs->{"step${step}"} = FileHandle->new();
-    my $path = File::Spec->catfile($dest_dir, "step-${step}.yml");
+foreach my $step (@$STEPS) {
+    my $sname = $step->{'name'};
+    my $fh = $m_fhs->{$sname} = FileHandle->new();
+    my $path = File::Spec->catfile($options->{'config_out'}, "${sname}.yml");
     $fh->open(">$path") || die "unable to write to $path";
     print $fh "cwl_files:\n";
-    print $fh join("\n", map {" - { class: File, path: ../" . $_ . "}"} @{$CWL_FILES->{"step${step}"}});
+    print $fh join("\n", map {" - { class: File, path: ../" . $_ . "}"} @{$step->{'files'}});
     print $fh "\n";
     if ($step == 1) {
 	print $fh "melt_config_files:\n";
@@ -134,21 +190,21 @@ foreach my $u (@$sample_list) {
 
     # step 1
     my $sample_config = "step-1-pre-" . $u->{'sample'} . ".yml";
-    my $sample_config_path = File::Spec->catfile($dest_dir, $sample_config);
+    my $sample_config_path = File::Spec->catfile($options->{'config_out'}, $sample_config);
     my $cfh = FileHandle->new();
     $cfh->open(">$sample_config_path") || die "unable to write to $sample_config_path";
     $cfh->print("reads_bam_uri: " . $u->{'uri'}. "\n");
-    $cfh->print($configs->{'step1'});
+    $cfh->print($STEPS_H->{'step1'}->{'config'});
     $cfh->close();
     $m_fhs->{'step1'}->print(" - { class: File, path: $sample_config }\n");
 
     # step 3
     my $step3_config = "step-3-gen-" . $u->{'sample'} . ".yml";
-    my $step3_config_path = File::Spec->catfile($dest_dir, $step3_config);
+    my $step3_config_path = File::Spec->catfile($options->{'config_out'}, $step3_config);
     my $cfh = FileHandle->new();
     $cfh->open(">$step3_config_path") || die "unable to write to $step3_config_path";
     $cfh->print("reads_bam_uri: " . $u->{'uri'}. "\n");
-    $cfh->print($configs->{'step3'});
+    $cfh->print($STEPS_H->{'step3'}->{'config'});
     $cfh->close();
 
     $m_fhs->{'step3'}->print(" - { melt_config_file: { class: File, path: $step3_config }, input_files: [");
@@ -187,7 +243,7 @@ foreach my $t (@$transposons) {
 
     # step 2
     my $step2_config = "step-2-grp-" . $t->{'name'} . ".yml";
-    my $step2_config_path = File::Spec->catfile($dest_dir, $step2_config);
+    my $step2_config_path = File::Spec->catfile($options->{'config_out'}, $step2_config);
     my $cfh = FileHandle->new();
     $cfh->open(">$step2_config_path") || die "unable to write to $step2_config_path";
 
@@ -195,7 +251,7 @@ foreach my $t (@$transposons) {
     $m_fhs->{'step2'}->print(" - { melt_config_file: { class: File, path: $step2_config }, input_files: [");
 
     # step2 template
-    $cfh->print($configs->{'step2'});
+    $cfh->print($STEPS_H->{'step2'}->{'config'});
 
     # add transposon_zip_file
     $cfh->print("transposon_zip_file: { class: File, path: " . $t->{'zip_file'} . "}\n");
@@ -204,37 +260,37 @@ foreach my $t (@$transposons) {
 
     my $aligned_bam_files = &$get_step1_files($t->{'name'}, ['aligned.final.sorted.bam']);
     my $aligned_bai_files = &$get_step1_files($t->{'name'}, ['aligned.final.sorted.bam.bai']);
-    &$print_file_list($cfh, 'aligned_bam_files', $aligned_bam_files, $OUTDIR);
+    &$print_file_list($cfh, 'aligned_bam_files', $aligned_bam_files, $TOIL_OUTPUT_DIR);
     push(@$step2_input_files, @$aligned_bam_files);
     push(@$step2_input_files, @$aligned_bai_files);
 
     my $hum_breaks_bam_files = &$get_step1_files($t->{'name'}, ['hum_breaks.sorted.bam']);
     my $hum_breaks_bai_files = &$get_step1_files($t->{'name'}, ['hum_breaks.sorted.bam.bai']);
-    &$print_file_list($cfh, 'hum_breaks_bam_files', $hum_breaks_bam_files, $OUTDIR);
+    &$print_file_list($cfh, 'hum_breaks_bam_files', $hum_breaks_bam_files, $TOIL_OUTPUT_DIR);
     push(@$step2_input_files, @$hum_breaks_bam_files);
     push(@$step2_input_files, @$hum_breaks_bai_files);
 
     my $pulled_bam_files = &$get_step1_files($t->{'name'}, ['pulled.sorted.bam']);
     my $pulled_bai_files = &$get_step1_files($t->{'name'}, ['pulled.sorted.bam.bai']);
-    &$print_file_list($cfh, 'pulled_bam_files', $pulled_bam_files, $OUTDIR);
+    &$print_file_list($cfh, 'pulled_bam_files', $pulled_bam_files, $TOIL_OUTPUT_DIR);
     push(@$step2_input_files, @$pulled_bam_files);
     push(@$step2_input_files, @$pulled_bai_files);
 
     my $tmp_bed_files = &$get_step1_files($t->{'name'}, ['tmp.bed']);
-    &$print_file_list($cfh, 'tmp_bed_files', $tmp_bed_files, $OUTDIR);
+    &$print_file_list($cfh, 'tmp_bed_files', $tmp_bed_files, $TOIL_OUTPUT_DIR);
     push(@$step2_input_files, @$tmp_bed_files);
     $cfh->close();
 
     # step2 master file
-    &$print_comma_delim_file_list($m_fhs->{'step2'}, 'input_files', $step2_input_files, $INDIR);
+    &$print_comma_delim_file_list($m_fhs->{'step2'}, 'input_files', $step2_input_files, $TOIL_INPUT_DIR);
     $m_fhs->{'step2'}->print("]}\n");
 
     # step4 template
     my $step4_config = "step-4-vcf-" . $t->{'name'} . ".yml";
-    my $step4_config_path = File::Spec->catfile($dest_dir, $step4_config);
+    my $step4_config_path = File::Spec->catfile($options->{'config_out'}, $step4_config);
     my $cfh = FileHandle->new();
     $cfh->open(">$step4_config_path") || die "unable to write to $step4_config_path";
-    $cfh->print($configs->{'step4'});
+    $cfh->print($STEPS_H->{'step4'}->{'config'});
     # add transposon_zip_file
     $cfh->print("transposon_zip_file: { class: File, path: " . $t->{'zip_file'} . "}\n");
 
@@ -248,12 +304,12 @@ foreach my $t (@$transposons) {
     push(@$step4_input_files, $t->{'name'} . ".pre_geno.tsv");
 
     # geno files
-    &$print_file_list($cfh, 'geno_files', $geno_files, $OUTDIR);
+    &$print_file_list($cfh, 'geno_files', $geno_files, $TOIL_OUTPUT_DIR);
     push(@$step4_input_files, @$geno_files);
     $cfh->close();
 
     # step4 master file
-    &$print_comma_delim_file_list($m_fhs->{'step4'}, 'input_files', $step4_input_files, $INDIR);
+    &$print_comma_delim_file_list($m_fhs->{'step4'}, 'input_files', $step4_input_files, $TOIL_INPUT_DIR);
     $m_fhs->{'step4'}->print("]}\n");
     
 }
@@ -263,3 +319,32 @@ map { $_->close() } values %$m_fhs;
 
 exit(0);
 
+## subroutines
+sub check_parameters {
+  my $options = shift;
+    
+  ## make sure required parameters were passed
+  my @required = qw(sample_uri_list config_in config_out);
+  for my $option ( @required ) {
+    unless ( defined $options->{$option} ) {
+      die("--$option is a required option");
+    }
+  }
+
+  ## check that config_in and config_out both exist
+  for my $opt ('config_in', 'config_out') {
+      die "--$opt=$options->{$opt} does not exist" if (!-e $options->{$opt});
+      die "--$opt=$options->{$opt} is not a directory" if (!-d $options->{$opt});
+  }
+
+  ## check for config files in config_in
+  foreach my $step (@$STEPS) {
+      my $conf_file = $step->{'config_in'};
+      my $conf_path = $step->{'config_in_path'} = File::Spec->catfile($options->{'config_in'}, $conf_file);
+      die "config file $conf_path not found" if (!-e $conf_path);
+  }
+
+  ## defaults
+  $options->{'sample_regex'}= $DEFAULT_SAMPLE_REGEX if (!defined($options->{'sample_regex'}));
+
+}
