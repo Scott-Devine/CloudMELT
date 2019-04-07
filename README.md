@@ -187,15 +187,30 @@ Assuming that the 4 configuration files are in a subdirectory named `config.in` 
 create (but not run) a pipeline to process these samples:
 
 ```
-user@local_machine$ mkdir config.out
 user@local_machine$ $CLOUD_MELT_HOME/bin/create_pipeline.pl --sample_uri_list=sample_uris.txt \
-  --config_in=./config.in \
-  --config_out=./config.out
+ --config_dir=./config.in \
+ --workflow_dir=./melt-workflow \
+ --toil_jobstore='aws:us-east-1:tj1'
 ```
 
-TODO - update create_pipeline to match the above description
+This command can also be found in the `create_pipeline.sh` shell script in the example directory.
+It should create a new directory, `melt-workflow` and populate it with the files necessary to run
+the workflow. It will then create a gzipped tar file from that directory, `melt-workflow.tar.gz`
+
+Note that:
+* The `toil_jobstore` is tied to a specific AWS region (us-east-1 in this case)
+* The script `melt-workflow/run-workflow.sh` will execute the four steps of the workflow on the AWS/Toil leader node.
+If, for example, you wish to check the output of step 1 before running step 2, this is the script that should
+be edited (e.g., to exit after step 1 and then, once the output has been verified, to run steps 2-4, but skip
+step 1.)
+* If any edits are made to `run-workflow.sh` or any of the other files in `melt-workflow`, the tar file will
+have to be rebuilt before uploading it to the Toil leader node on AWS.
 
 ### Run Toil command to create a static compute cluster on EC2
+
+Currently CloudMELT only supports static Toil clusters, meaning that the size and composition of the AWS 
+cluster is fixed for the duration of the workflow. (Toil also supports dynamic cluster provisioning, in
+which cluster nodes are started and stopped as needed as the workflow progresses.)
 
 -Link to page showing EC2 spot instance costs
 -Link to page showing which instances are compatible with the core os AMI
@@ -213,7 +228,7 @@ Create a tarball that contains all of the workflow and configuration files:
 tar czvf workflow.tar.gz cwl/* run-workflow.sh config.out
 ```
 
-Upload the tarball to the Toil leader node:
+Upload the tarball to the Toil leader node using `rsync-cluster`:
 
 ```
 toil rsync-cluster -z us-east-1a tcm1 ./workflow.tar.gz :/root/
@@ -249,8 +264,6 @@ TODO - copy config.json to each worker node in turn
     -this ensures that the cwltool jobs that run on each instance will use the ephemeral storage (i.e., large SSD)
    -runs docker login
    -pulls the docker image containing MELT, Bowtie, and the reference database(s)
-
-### Run toil rsync-cluster to copy tarball to Toil leader node
 
 ### Run toil ssh-cluster to connect to Toil leader node
 
