@@ -230,25 +230,24 @@ writing such a cluster will cost approximately 36 cents per hour to operate:
 toil launch-cluster tcm1 --leaderNodeType t2.medium --zone us-east-1a --keyPairName kp1 --nodeTypes i3.xlarge -w 1
 ```
 
-Detailed information on instances types and pricing can be found on the [AWS site][ec2_instances].
+Detailed information on instance types and on-demand instance pricing can be found on the [Amazon EC2 Pricing][on_demand_pricing] page.
 
-[ec2_instances]: https://aws.amazon.com/ec2/faqs/ 
+Note that:
+* "tcm1" is the cluster name - you will need this to run commands on the cluster later
+* The `--zone` specified (e.g., `us-east-1a`) must match the AWS region (e.g., `us-east-1`) provided to the pipeline creation script.
+* The `--keyPairName` must identify an ssh key pair associated with your AWS account. 
+
+[on_demand_pricing]: https://aws.amazon.com/ec2/pricing/on-demand/
 [core_os_ami]: https://aws.amazon.com/marketplace/pp/B01H62FDJM/
 
 ### Upload workflow tarball
 
--Edit workflow master script as needed (optional)
-
-Create a tarball that contains all of the workflow and configuration files:
-
-```
-tar czvf workflow.tar.gz cwl/* run-workflow.sh config.out
-```
-
-Upload the tarball to the Toil leader node using `rsync-cluster`:
+Recall that the `create_pipeline.pl` that you ran in a previous step created a tarball (e.g., melt-workflow.tar.gz)
+containing all of the workflow files. Use the following Toil command to upload the workflow tarball to the Toil
+leader node:
 
 ```
-toil rsync-cluster -z us-east-1a tcm1 ./workflow.tar.gz :/root/
+toil rsync-cluster -z us-east-1a tcm1 ./melt-workflow.tar.gz :/root/
 ```
 
 ### Log in to docker and distribute config.json
@@ -259,9 +258,11 @@ Run the following command on the local machine to show the `docker login` comman
 user@local_machine$ aws ecr get-login --region us-east-1 --no-include-email
 ```
 
-Note that this command and several of the other AWS commands require the selection of an AWS region. Use 
-the AWS/EC2 region in which you plan to run the MELT jobs (us-east-1 in this example). The above command
-should print a `docker login` command to the terminal. Copy this command to the clipboard.
+Note that this command and several of the other AWS commands require
+the selection of an AWS region. Use the AWS/EC2 region in which you
+plan to run the MELT jobs (us-east-1 in this example). The above
+command should print a `docker login` command to the terminal. Copy
+this command to the clipboard.
 
 Next, connect to the Toil leader node and run the copied `docker login` command:
 
