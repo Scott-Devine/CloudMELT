@@ -208,17 +208,34 @@ have to be rebuilt before uploading it to the Toil leader node on AWS.
 
 ### Run Toil command to create a static compute cluster on EC2
 
-Currently CloudMELT only supports static Toil clusters, meaning that the size and composition of the AWS 
-cluster is fixed for the duration of the workflow. (Toil also supports dynamic cluster provisioning, in
-which cluster nodes are started and stopped as needed as the workflow progresses.)
+Currently CloudMELT only supports static Toil clusters, meaning that
+the size (number of AWS instances) and composition (instance types) of
+the AWS cluster is fixed for the duration of the workflow. (Toil also
+supports dynamic cluster provisioning, in which cluster nodes are
+started and stopped as needed as the workflow progresses.)
 
--Link to page showing EC2 spot instance costs
--Link to page showing which instances are compatible with the core os AMI
+Since Toil relies on the Container Linux by CoreOS AMI, only
+instance types supported by that AMI can be used (see the [CoreOS AMI page][core_os_ami]
+for a complete list). In addition, CloudMELT requires that the instances have SSD-backed
+ephemeral storage, meaning that only instance types with local SSD storage can be used.
+The "i3" series of storage-optimized instance types all have SSD support. It is not 
+absolutely necessary for the Toil leader node to have SSD storage, although it's 
+recommended that at least a `t2.medium` be used for the leader.
+
+For example, here is the Toil command to create a static cluster with a leader node of
+type `t2.medium` and a single worker node of type `i3.xlarge`. At the time of this 
+writing such a cluster will cost approximately 36 cents per hour to operate:
+
+```
+toil launch-cluster tcm1 --leaderNodeType t2.medium --zone us-east-1a --keyPairName kp1 --nodeTypes i3.xlarge -w 1
+```
+
+Detailed information on instances types and pricing can be found on the [AWS site][ec2_instances].
 
 [ec2_instances]: https://aws.amazon.com/ec2/faqs/ 
 [core_os_ami]: https://aws.amazon.com/marketplace/pp/B01H62FDJM/
 
-### Create and upload workflow tarball
+### Upload workflow tarball
 
 -Edit workflow master script as needed (optional)
 
