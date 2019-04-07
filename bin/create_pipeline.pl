@@ -8,9 +8,11 @@ create_pipeline.pl - Create a CloudMELT pipeline to run a MELT-Split analysis on
 
   create_pipeline.pl
          --sample_uri_list=./sample_list.txt
-         --config_in=./config.in
-         --config_out=./config.out
+         --config_dir=./melt-config
+         --workflow_dir=./melt-workflow
+         --toil_jobstore='aws:us-east-1:tj1'
        [ --sample_regex='([A-Z0-9]+)\.mapped'
+         --cloud_melt_home=/path/to/CloudMELT
          ]
 
 =back
@@ -32,7 +34,9 @@ use FileHandle;
 use File::Spec;
 use Pod::Usage;
 
+# --------------------------------------------
 ## globals
+# --------------------------------------------
 my $DEFAULT_SAMPLE_REGEX = '([A-Z0-9]+)\.mapped';
 my $TOIL_INPUT_DIR = "../";
 my $TOIL_OUTPUT_DIR = "/toil/";
@@ -41,6 +45,7 @@ my $TOIL_OUTPUT_DIR = "/toil/";
 my $STEPS = [
     { 
 	'name' => 'step1', 
+	'cwl' => 'melt-split-step-1.cwl',
 	'config_in' => 'step-1-pre.yml', 
 	'files' =>
 	    ['melt-split-pre-mosdepth-cov-ind.cwl', # includes both coverage methods
@@ -53,6 +58,7 @@ my $STEPS = [
     },
     { 
 	'name' => 'step2',
+	'cwl' => 'melt-split-step-2.cwl',
 	'config_in' => 'step-2-grp.yml',
 	'files' => 
 	    [ 'melt-grp.cwl',
@@ -60,6 +66,7 @@ my $STEPS = [
     },
     {
 	'name' => 'step3',
+	'cwl' => 'melt-split-step-3.cwl',
 	'config_in' => 'step-3-gen.yml',
 	'files' => 
 	    [ 'melt-split-gen.cwl',
@@ -69,6 +76,7 @@ my $STEPS = [
     },
     { 
 	'name' => 'step4',
+	'cwl' => 'melt-split-step-4.cwl',
 	'config_in' => 'step-4-vcf.yml',
 	'files' =>
 	    [ 'melt-vcf.cwl',
@@ -80,20 +88,33 @@ my $STEPS = [
 my $STEPS_H = {};
 map { $STEPS_H->{$_->{'name'}} = $_; } @$STEPS;
 
+# --------------------------------------------
 ## input
+# --------------------------------------------
 my $options = {};
 &GetOptions($options,
 	    "sample_uri_list=s",
-	    "config_in=s",
-	    "config_out=s",
+	    "config_dir=s",
+	    "workflow_dir=s",
+	    "toil_jobstore=s",
 	    "sample_regex=s",
+	    "cloud_melt_home=s",
             "help|h",
             "man|m") || pod2usage();
 
 # check parameters/set defaults 
 &check_parameters($options);
 
+# --------------------------------------------
 ## main program
+# --------------------------------------------
+
+# create output directory for config files
+my $config_out = File::Spec->catfile($options->{'workflow_dir'}, 'config');
+mkdir $config_out;
+
+my $cwl_dir = File::Spec->catfile($options->{'cloud_melt_home'}, 'cwl');
+die "$cwl_dir does not exist or is not a directory" if ((!-e $cwl_dir) || (!-d $cwl_dir));
 
 # --------------------------------------------
 # read sample_uri_list, parse sample ids
@@ -155,7 +176,10 @@ foreach my $step (@$STEPS) {
 	    }
 	}
     }
-    print STDERR "INFO - read " . scalar(@$transposons) . " transposon(s) from " . $cpath . "\n" if ($step->{'name'} eq 'step1');
+    if ($step->{'name'} eq 'step1') {
+	print STDERR "INFO - read " . scalar(@$transposons) . " transposon(s) from " . $cpath . ": ";
+	print STDERR join(", ", map { $_->{'name'} } @$transposons) . "\n";
+    }
     $fh->close();
 }
 
@@ -166,7 +190,7 @@ my $m_fhs = {};
 foreach my $step (@$STEPS) {
     my $sname = $step->{'name'};
     my $fh = $m_fhs->{$sname} = FileHandle->new();
-    my $path = File::Spec->catfile($options->{'config_out'}, "${sname}.yml");
+    my $path = File::Spec->catfile($config_out, "${sname}.yml");
     $fh->open(">$path") || die "unable to write to $path";
     print $fh "cwl_files:\n";
     print $fh join("\n", map {" - { class: File, path: ../" . $_ . "}"} @{$step->{'files'}});
@@ -184,13 +208,15 @@ foreach my $t (@$transposons) {
     push(@$pre_geno_files, "{ class: File, path: ../" . $t->{'name'} . ".pre_geno.tsv }");
 }
 
-# per-sample config files
+# --------------------------------------------
+# write per-sample config files
+# --------------------------------------------
 foreach my $u (@$sample_list) {
     print STDERR "INFO - writing step 1 config files for $u->{'sample'}\n";
 
     # step 1
     my $sample_config = "step-1-pre-" . $u->{'sample'} . ".yml";
-    my $sample_config_path = File::Spec->catfile($options->{'config_out'}, $sample_config);
+    my $sample_config_path = File::Spec->catfile($config_out, $sample_config);
     my $cfh = FileHandle->new();
     $cfh->open(">$sample_config_path") || die "unable to write to $sample_config_path";
     $cfh->print("reads_bam_uri: " . $u->{'uri'}. "\n");
@@ -200,7 +226,7 @@ foreach my $u (@$sample_list) {
 
     # step 3
     my $step3_config = "step-3-gen-" . $u->{'sample'} . ".yml";
-    my $step3_config_path = File::Spec->catfile($options->{'config_out'}, $step3_config);
+    my $step3_config_path = File::Spec->catfile($config_out, $step3_config);
     my $cfh = FileHandle->new();
     $cfh->open(">$step3_config_path") || die "unable to write to $step3_config_path";
     $cfh->print("reads_bam_uri: " . $u->{'uri'}. "\n");
@@ -238,12 +264,14 @@ my $print_comma_delim_file_list = sub {
     $fh->print(join(",", map {"{ class: File, path: ${prefix}$_ }"} @$files));
 };
 
-# per-transposon config files
+# --------------------------------------------
+# write per-transposon config files
+# --------------------------------------------
 foreach my $t (@$transposons) {
 
     # step 2
     my $step2_config = "step-2-grp-" . $t->{'name'} . ".yml";
-    my $step2_config_path = File::Spec->catfile($options->{'config_out'}, $step2_config);
+    my $step2_config_path = File::Spec->catfile($config_out, $step2_config);
     my $cfh = FileHandle->new();
     $cfh->open(">$step2_config_path") || die "unable to write to $step2_config_path";
 
@@ -287,7 +315,7 @@ foreach my $t (@$transposons) {
 
     # step4 template
     my $step4_config = "step-4-vcf-" . $t->{'name'} . ".yml";
-    my $step4_config_path = File::Spec->catfile($options->{'config_out'}, $step4_config);
+    my $step4_config_path = File::Spec->catfile($config_out, $step4_config);
     my $cfh = FileHandle->new();
     $cfh->open(">$step4_config_path") || die "unable to write to $step4_config_path";
     $cfh->print($STEPS_H->{'step4'}->{'config'});
@@ -317,34 +345,119 @@ foreach my $t (@$transposons) {
 # close master filehandles
 map { $_->close() } values %$m_fhs; 
 
+# --------------------------------------------
+# copy cwl files into workflow dir
+# --------------------------------------------
+my $files_copied = {};
+
+foreach my $step (@$STEPS) {
+    foreach my $file (@{$step->{'files'}}) {
+	next if (defined($files_copied->{$file}));
+	my $from_path = File::Spec->catfile($cwl_dir, $file);
+	my $to_path = File::Spec->catfile($options->{'workflow_dir'}, $file);
+	die "$from_path not found" if (!-e $from_path);
+	print STDERR "INFO - copying $from_path to $to_path\n";
+	die "$to_path already exists - please remove and rerun" if (-e $to_path);
+	&run_sys_command("cp $from_path $to_path");
+	$files_copied->{$file} = 1;
+    }
+}
+
+# --------------------------------------------
+# create helper script(s)
+# --------------------------------------------
+
+# create run-workflow.sh
+my $run_file = "run-workflow.sh";
+my $run_path = File::Spec->catfile($options->{'workflow_dir'}, $run_file);
+my $rfh = FileHandle->new();
+$rfh->open(">$run_path") || die "couldn't write to $run_path";
+$rfh->print("#!/bin/bash\n\n");
+$rfh->print("export RUNNER='toil-cwl-runner --retryCount 0'\n\n");
+
+foreach my $step (@$STEPS) {
+    my $sname = $step->{'name'};
+    my $cwl = $step->{'cwl'};
+    my $conf_path = File::Spec->catfile($config_out, "${sname}.yml");
+    $rfh->print("# $sname\n");
+    $rfh->print("time \$RUNNER ");
+    $rfh->print("--jobStore '" . $options->{'toil_jobstore'} . "' ");
+    $rfh->print(" --logFile melt-split-${sname}.log ");
+    $rfh->print(" --batchSystem mesos ");
+    $rfh->print(" $cwl $conf_path ");
+    $rfh->print("\n\n");
+}
+$rfh->close();
+
+# --------------------------------------------
+# create tarball
+# --------------------------------------------
+my $wf_dir = $options->{'workflow_dir'};
+print STDERR "INFO - creating ${wf_dir}.tar.gz\n";
+&run_sys_command("tar czvf ${wf_dir}.tar.gz $wf_dir");
+
 exit(0);
 
+# --------------------------------------------
 ## subroutines
+# --------------------------------------------
 sub check_parameters {
   my $options = shift;
     
   ## make sure required parameters were passed
-  my @required = qw(sample_uri_list config_in config_out);
+  my @required = qw(sample_uri_list config_dir workflow_dir toil_jobstore);
   for my $option ( @required ) {
     unless ( defined $options->{$option} ) {
       die("--$option is a required option");
     }
   }
 
-  ## check that config_in and config_out both exist
-  for my $opt ('config_in', 'config_out') {
+  ## check that config_dir exists
+  for my $opt ('config_dir') {
       die "--$opt=$options->{$opt} does not exist" if (!-e $options->{$opt});
       die "--$opt=$options->{$opt} is not a directory" if (!-d $options->{$opt});
+  }
+
+  if (!-e $options->{'workflow_dir'}) {
+      print STDERR "$options->{'workflow_dir'} does not exist, creating it now\n";
+      mkdir $options->{'workflow_dir'};
   }
 
   ## check for config files in config_in
   foreach my $step (@$STEPS) {
       my $conf_file = $step->{'config_in'};
-      my $conf_path = $step->{'config_in_path'} = File::Spec->catfile($options->{'config_in'}, $conf_file);
+      my $conf_path = $step->{'config_in_path'} = File::Spec->catfile($options->{'config_dir'}, $conf_file);
       die "config file $conf_path not found" if (!-e $conf_path);
+  }
+
+  ## check cloud_melt_home
+  if (!defined($options->{'cloud_melt_home'})) {
+      if (!defined($ENV{'CLOUD_MELT_HOME'})) {
+	  die "--cloud_melt_home not defined and \$CLOUD_MELT_HOME env var not defined";
+      }
+      $options->{'cloud_melt_home'} = $ENV{'CLOUD_MELT_HOME'};
   }
 
   ## defaults
   $options->{'sample_regex'}= $DEFAULT_SAMPLE_REGEX if (!defined($options->{'sample_regex'}));
 
+}
+
+sub run_sys_command {
+  my($cmd) = @_;
+  system($cmd);
+
+  # check for errors, halt if any are found
+  my $err = undef;
+  if ($? == -1) {
+    $err = "failed to execute: $!";
+  }
+  elsif ($? & 127) {
+    $err = sprintf("child died with signal %d, %s coredump\n", ($? & 127), ($? & 128) ? 'with' : 'without');
+  }
+  else {
+    my $exit_val = $? >> 8;
+    $err = sprintf("child exited with value %d\n", $exit_val) if ($exit_val != 0);
+  }
+  die $err if (defined($err));
 }
