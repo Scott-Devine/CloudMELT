@@ -250,6 +250,13 @@ leader node:
 toil rsync-cluster -z us-east-1a tcm1 ./melt-workflow.tar.gz :/root/
 ```
 
+## Set up worker nodes
+
+Two things need to happen on each worker node before running a workflow:
+1. Log in to Docker and retrieve the access-restricted MELT Docker image from Amazon ECR
+2. Create symlink from /mnt/ephemeral/tmp (SSD storage) to /root/tmp
+These steps are partially automated.
+
 ### Log in to docker and distribute config.json
 
 Run the following command on the local machine to show the `docker login` command needed to access Amazon ECR (Elastic Container Registry):
@@ -272,22 +279,33 @@ root@aws_toil_leader$ docker login <etc. etc.>
 ```
 
 If the `docker login` command is successful you should now have a `/root/.docker/config.json` file 
-on the Toil leader node. Exit the ssh session with the leader node.
+on the Toil leader node. Exit the ssh session with the leader node to return to the local machine.
 
-TODO - copy config.json to each worker node in turn
+The following commands must now be run for each worker node in turn (a list of the worker
+nodes and their public IP addresses can be obtained from the AWS console's list of [Running Instances][aws_ec2_instances]
 
-### Run setup script on each worker node
- The script:
-   -creates /mnt/ephemeral/tmp and symlinks it to /root/tmp
-    -this ensures that the cwltool jobs that run on each instance will use the ephemeral storage (i.e., large SSD)
-   -runs docker login
-   -pulls the docker image containing MELT, Bowtie, and the reference database(s)
+[aws_ec2_instances]: https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:sort=desc:dnsName
+
+1. Copy `config.json` to each worker node:
+```
+scp config.json core@aws_instance_public_ip:
+```
+2. Run the setup script on each worker node (this will create the symlink and pull the MELT Docker image):
+```
+
+```
 
 ### Run toil ssh-cluster to connect to Toil leader node
 
+TODO
+
 ### Uncompress tarball (on Toil leader node)
 
+TODO
+
 ### Run workflow master script (on Toil leader node)
+
+TODO
 
 ### Monitor workflow progress
  -AWS EC2 page
@@ -299,25 +317,39 @@ TODO - copy config.json to each worker node in turn
 
 ### Check results after each step of workflow (optional)
 
+TODO
+
 ### Create tarball of all the files to be saved (on Toil leader node)
+
+TODO
 
 ### Run toil rsync-cluster to transfer results tarball back to local machine
 
+TODO
+
 ### Run toil destroy-cluster to shut down the toil cluster
+
+TODO
 
 ### Check AWS EC2 page to ensure that the machines have been shut down
 
+TODO
 
 ## Recovering from workflow failure
 
-May need to delete the job store before restarting.
+TODO 
 
+May need to delete the job store before restarting.
 
 ## Handling AWS instance limits.
 
 Include link to customer support form.
 
+TODO
+
 ## Building/exporting CloudMELT Docker container
+
+TODO
 
 ## Limitations/Caveats
 
