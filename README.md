@@ -288,24 +288,35 @@ nodes and their public IP addresses can be obtained from the AWS console's list 
 
 1. Copy `config.json` to each worker node:
 ```
-scp config.json core@aws_instance_public_ip:
+user@local_machine$ scp config.json core@<aws_instance_public_ip>:
 ```
 2. Run the setup script on each worker node (this will create the symlink and pull the MELT Docker image):
 ```
-
+user@local_machine$ scp $CLOUD_MELT_HOME/bin/setup-worker-node.sh core@<aws_instance_public_ip>:
+user@local_machine$ ssh core@<aws_instance_public_ip> './setup-worker-node.sh'
 ```
+
+TODO - add script to run setup steps in parallel for larger clusters
 
 ### Run toil ssh-cluster to connect to Toil leader node
 
-TODO
+```
+user@local_machine$ toil ssh-cluster -z us-east-1a tcm1
+```
 
 ### Uncompress tarball (on Toil leader node)
 
-TODO
+```
+root@aws_toil_leader$ cd /root
+root@aws_toil_leader$ tar xzf melt-workflow.tar.gz
+root@aws_toil_leader$ cd melt-workflow
+```
 
 ### Run workflow master script (on Toil leader node)
 
-TODO
+```
+root@aws_toil_leader$ time ./run-workflow.sh
+```
 
 ### Monitor workflow progress
  -AWS EC2 page
@@ -321,18 +332,29 @@ TODO
 
 ### Create tarball of all the files to be saved (on Toil leader node)
 
-TODO
+```
+root@aws_toil_leader$ tar czvf melt-results.tar.gz *.vcf *.tsv
+```
 
 ### Run toil rsync-cluster to transfer results tarball back to local machine
 
-TODO
+```
+user@local_machine$ toil rsync-cluster -z us-east-1a tcm1 :/root/melt-results.tar.gz ./
+```
 
 ### Run toil destroy-cluster to shut down the toil cluster
 
-TODO
+```
+user@local_machine$ toil desotry-cluster -z us-east-1a tcm1
+```
 
 ### Check AWS EC2 page to ensure that the machines have been shut down
 
+Check the AWS console's [Running Instances][aws_ec2_instances] page to ensure that all of the 
+cluster nodes shut down. If they do not shut down automatically they can be halted and deleted
+from the AWS console (though this should not be necessary.)
+
+[aws_ec2_instances]: https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:sort=desc:dnsName
 TODO
 
 ## Recovering from workflow failure
