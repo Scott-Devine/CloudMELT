@@ -31,16 +31,16 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
    not already have one. The IAM AWS permissions required to run Toil workflows are 
    enumerated/discussed in https://jira.igs.umaryland.edu/browse/ENG-3589.
  
-2. A local installation of the AWS command line tools (AWS CLI)
+2. A local installation of the AWS command line tools (AWS CLI)  
    See [https://aws.amazon.com/cli/][aws_cli] for details.
  
 3. A local installation of Toil  
-   This tutorial assumes that Toil has been installed locally, as described in the Toil 
-   [installation documentation][toil_install]. Note that it must be installed with at
+   This tutorial assumes that Toil has been installed locally, as described in the
+   [Toil installation documentation][toil_install]. Note that it must be installed with at
    least the following Toil "extras" to enable support for running CWL workflows on Amazon 
    EC2: `aws,mesos,cwl`  
   
-   **NOTE FOR IGS USERS:** Toil has been installed on all IGS machines at ??? (TODO)
+   **NOTE FOR IGS USERS:** Toil has been installed on IGS RHEL 7 machines at ??? (TODO)
 
 4. Familiarity with the [MELT][melt] software.
   
