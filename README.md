@@ -205,7 +205,9 @@ with the files necessary to run the workflow. It will then create a gzipped tar 
 `melt-workflow.tar.gz`
 
 Note that:
-* The `toil_jobstore` is tied to a specific AWS region (`us-east-1` in this case)
+* The `toil_jobstore` is tied to a specific AWS region (`us-east-1` in this case.) Toil's jobstore consists
+of an AWS database and S3 bucket used to hold intermediate workflow outputs and information on the current
+state of the workflow.
 * The script `melt-workflow/run-workflow.sh` will execute the four steps of the workflow on the AWS/Toil leader node.
 If, for example, you wish to check the output of step 1 before running step 2, this script should be edited so that
 it exits after running step 1 (and then, once the output has been verified, to run the remaining steps from 2-4.) In 
@@ -246,6 +248,8 @@ Note that:
 * The `--zone` specified (e.g., `us-east-1a`) must match the AWS region (e.g., `us-east-1`) provided to the pipeline creation script.
 * The `--keyPairName` must identify an ssh key pair associated with your AWS account: it will be used to allow you to connect to the
 Toil leader node and worker node(s).
+* AWS error/warning messages sometimes appear on the console but are not always fatal. When in doubt, 
+check the AWS Console to see whether the Toil leader and worker nodes were created successfully.
 
 [on_demand_pricing]: https://aws.amazon.com/ec2/pricing/on-demand/
 [core_os_ami]: https://aws.amazon.com/marketplace/pp/B01H62FDJM/
@@ -266,9 +270,10 @@ Two things need to happen on each worker node before running a MELT workflow:
 1. Log in to Docker and retrieve the access-restricted MELT Docker image from Amazon ECR
 2. Create symlink from /mnt/ephemeral/tmp (SSD storage) to /root/tmp
 
-These steps are partially automated by a script but you will need to identify the public IP addresses of
-the AWS worker nodes (using the AWS console) in order to copy files to and run commands on the Toil
-worker nodes.
+These steps are partially automated by a script but you will need to
+identify the public IP addresses of the AWS worker nodes (using the
+AWS console) in order to copy files to and run commands on each of the
+Toil worker nodes. One way to do this is to use the AWS Console.
 
 First, run the following command on the local machine to show the `docker login` command needed to 
 retrieve the MELT Docker image from Amazon's ECR (Elastic Container Registry):
@@ -418,6 +423,11 @@ TODO - sort `all.tmp.bed` so that the insertions with the most (by sample and/or
 
 # Building/exporting CloudMELT Docker container
 
+As noted earlier, CloudMELT relies on a Docker container that hosts the MELT software and 
+its dependencies, in addition to the reference database(s) and transposon files. The 
+code to create this Docker container and push it to the Amazon ECR (Elastic Container 
+Registry) can be found in the [docker/][docker/] subdirectory of the CloudMELT 
+repository.
 
 TODO - add option to specify MELT Docker URI to `create_pipeline.pl`
 TODO - add MELT Dockerfile for hg38-based analyses
@@ -431,16 +441,27 @@ TODO - `create_pipeline.pl` currently supports only MELT-Split
 
 ## Recovering from workflow failure
 
-TODO 
+If a workflow fails it may be necessary to clean/remove the Toil jobstore before attempting
+to run it again (presumably after fixing whatever caused it to fail the first time.) The 
+following toil command will delete the specified toil jobstore, allowing a new one with the
+same name to be created. Note that the jobstore must match the one specified by the 
+`--toil_jobstore` option of `create_pipeline.pl`:
 
-May need to delete the job store before restarting.
+```
+toil clean aws:us-east-1:tj1
+```
 
 ## Handling AWS instance limits.
 
-Include link to customer support form.
-
-TODO
-
+The Toil `launch-cluster` command may fail with a message about exceeding AWS instance limts.
+AWS limits the number of instances of each VM type (e.g., i3.large, i3.xlarge) that a user
+may create in each AWS zone. By default for a new account these limits can be very low 
+(e.g., only 1 of each type of VM/instance). There are also limits on the total number of on-demand
+instances that a user may create in each zone (currently 20 instances per zone.) 
+To view your current account limits and request increase(s) go to the EC2 Dashboard 
+and click on "Limits" in the left hand menu bar. The on-demand instance limits should appear
+in a list on the right side of the screen along with a "Request increase" link for each
+instance type.
 
 # Limitations of current pipeline
 
