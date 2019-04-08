@@ -32,8 +32,7 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
    enumerated/discussed in https://jira.igs.umaryland.edu/browse/ENG-3589.
  
 2. A local installation of the AWS command line tools (AWS CLI)
-
-   See [https://aws.amazon.com/cli/][https://aws.amazon.com/cli/] for details.
+   See [https://aws.amazon.com/cli/][aws_cli] for details.
  
 3. A local installation of Toil  
    This tutorial assumes that Toil has been installed locally, as described in the Toil 
@@ -45,10 +44,11 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 
 4. Familiarity with the [MELT][melt] software.
   
+[aws_cli]: https://aws.amazon.com/cli/
+[melt]: http://melt.igs.umaryland.edu
 [toil_aws_prep]: https://toil.readthedocs.io/en/latest/running/cloud/amazon.html
 [toil_install]: https://toil.readthedocs.io/en/latest/gettingStarted/install.html
 [toil_aws]: https://toil.readthedocs.io/en/latest/running/cloud/amazon.html#runningaws
-[melt]: http://melt.igs.umaryland.edu
 
 ## Running a MELT-Split analysis
 
