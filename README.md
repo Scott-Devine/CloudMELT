@@ -13,7 +13,8 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 [melt]: http://melt.igs.umaryland.edu
 [toil]: http://toil.ucsc-cgl.org/
 
-# Running MELT on AWS EC2
+
+# Running MELT-Split on AWS EC2
 
 ## Prerequisites
 
@@ -387,19 +388,46 @@ from the AWS console (though this should not be necessary.)
 [aws_ec2_instances]: https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:sort=desc:dnsName
 
 
+# Reproducibility
+
+The current version (v2.1.5) of MELT can produce slightly different output depending on the
+order in which the individual samples' .bed files are processed in step 2 (GroupAnalysis).
+The end user does not have direct control over the order in which these files are processed
+and it can differ from machine to machine, or in the case of running on AWS, from VM to VM.
+The differences typically manifest as relatively small (e.g. 1-4) differences in the LP and
+RP values reported by MELT, which can also result in low-evidence transposon calls showing
+up in some runs but not others (even when the inputs are identical.)
+
+A workaround exists to eliminate this source of result variability and may be applied by 
+rewriting the .bed files after step 1 has completed but before step 2 is run. In brief, it
+must be applied to each transposon type separately, and consists of:
+
+1. Concatenating all the tmp.bed files for a given transposon (e.g., ALU) into a 
+single `all.tmp.bed` file. __The order in which the concatenation is done will 
+determine which of the possible outputs will be obtained.__
+2. Replacing __one__ of the per-sample ALU.tmp.bed files with all.tmp.bed
+3. Truncating all of the other ALU.tmp.bed files to size 0 (but the files must
+still exist.)
+
+After making this change step 2 can be run and any subsequent analysis of the same inputs
+with the same .tmp.bed concatenation order should produce produce the same final result.
+
+TODO - add a script and/or `create_pipeline.pl` option to automate this step.
+TODO - sort `all.tmp.bed` so that the insertions with the most (by sample and/or read count) support appear first
 
 
+# Building/exporting CloudMELT Docker container
 
- -AWS EC2 page
- -AWS S3 page
- -AWS billing page
 
-### Apply GroupAnalysis workaround after step 1 (optional)
- TODO - fold this into the initial configuration script
+TODO - add option to specify MELT Docker URI to `create_pipeline.pl`
+TODO - add MELT Dockerfile for hg38-based analyses
 
-## Running a MELT-Deletion analysis
+# Running MELT-Deletion on AWS EC2
 
-TODO - current workflow supports only MELT-Split.
+TODO - `create_pipeline.pl` currently supports only MELT-Split
+
+
+# Troubleshooting
 
 ## Recovering from workflow failure
 
@@ -413,11 +441,8 @@ Include link to customer support form.
 
 TODO
 
-## Building/exporting CloudMELT Docker container
 
-TODO
-
-## Limitations/Caveats
+# Limitations of current pipeline
 
 * Current pipeline assumes sample BAM files can be retrieved via HTTP GET
 * Current pipeline (and MELT) supports only BAM input files, not CRAM input files
