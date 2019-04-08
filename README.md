@@ -65,7 +65,7 @@ Obtain a copy of the CloudMELT code by downloading the latest release from the G
 using the green "Clone or download" dropwdown menu towards the top of the [GitHub page][melt_github].
 Set an environment variable, CLOUD_MELT_HOME, to the location of the downloaded code e.g., 
 
-```
+```bash
 user@local_machine$ export CLOUD_MELT_HOME=/home/username/CloudMELT
 ```
 
