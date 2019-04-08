@@ -52,13 +52,14 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 
 ## Running a MELT-Split analysis
 
-This section provides a detailed walkthrough of running CloudMELT on 10 low-coverage samples
-from the 1000 Genomes Project. All of the necessary configuration files to run this example
-can be found in the GitHub repo, at [examples/1000genomes-10-samples/][example].
+This section provides a detailed walkthrough of how to run CloudMELT on 10 low-coverage samples
+from the [1000 Genomes Project][1k_genomes]. All of the necessary configuration files to run this example
+can be found in the CloudMELT GitHub repo at [examples/1000genomes-10-samples/][example].
 
 [example]: examples/1000genomes-10-samples/
+[1K_genomes]: http://www.internationalgenome.org/
 
-### Obtain a copy of the CloudMELT code
+### 1. Obtain a copy of the CloudMELT code
 
 Obtain a copy of the CloudMELT code by downloading the latest release from the GitHub
 [releases page][rel_page] or by cloning the current master branch of the repository 
@@ -74,7 +75,7 @@ user@local_machine$ export CLOUD_MELT_HOME=/home/username/CloudMELT
 [rel_page]: https://github.com/jonathancrabtree/CloudMELT/releases
 [melt_github]: https://github.com/jonathancrabtree/CloudMELT
 
-### Create a local working directory
+### 2. Create a local working directory
 
 Create a directory to hold the CloudMELT workflow and the output files that you'll download
 from AWS once the workflow has completed:
@@ -84,7 +85,7 @@ user@local_machine$ mkdir cloud_melt_run
 user@local_machine$ cd cloud_melt_run
 ```
 
-### Download/create BAM file list
+### 3. Download/create BAM file list
 
 Download the following file to your local working directory: [examples/1000genomes-10-samples/sample_uris.txt][sample_list].
 It contains 10 low-coverage samples from the 1000 Genomes Project, all of them BAM files hosted on S3.
@@ -106,7 +107,7 @@ attempt to construct a URI for the .bai file by appending ".bai" to the end of e
 __NOTE:__ It is preferable to use BAM files hosted on S3 for CloudMELT to minimize download times
 when the pipeline is running.
 
-### Create/download CloudMELT configuration files
+### 4. Create/download CloudMELT configuration files
 
 CloudMELT is configured using the same YAML (.yml) file format supported by the Common Workflow Language.
 For MELT-Split the user must provide a .yml configuration file for each of the 4 steps of the MELT-Split
@@ -183,7 +184,7 @@ particular workflow step, check the `inputs` section of the corresponding .cwl f
 * These example configuration files use hs37d5 as the human reference sequence and the hg19 reference annotation.
 * MELT-Split is being run here on only two mobile element types: LINE1 and ALU. SVA and HERVK are also available and any combination of the 4 may be specified in the config files.
 
-### Run `create_pipeline.pl` to create the CloudMELT pipeline
+### 5. Run `create_pipeline.pl` to create the CloudMELT pipeline
 
 Assuming that the 4 configuration files are in a subdirectory named `config.in` and the 
 10 sample URI list is in  a file named `sample_uris.txt`, the following command will 
@@ -211,7 +212,7 @@ this particular case you may wish to split the run script into two or more parts
 * If any edits are made to `run-workflow.sh` or any of the other files in `melt-workflow`, the tar file will
 have to be rebuilt before uploading it to the Toil leader node on AWS.
 
-### Run Toil command to create a static compute cluster on EC2
+### 6. Run Toil command to create a static compute cluster on EC2
 
 Currently CloudMELT only supports static Toil clusters, meaning that
 the size (number of AWS instances) and composition (instance types) of
@@ -248,7 +249,7 @@ Toil leader node and worker node(s).
 [on_demand_pricing]: https://aws.amazon.com/ec2/pricing/on-demand/
 [core_os_ami]: https://aws.amazon.com/marketplace/pp/B01H62FDJM/
 
-### Upload workflow tarball
+### 7. Upload workflow tarball
 
 Recall that the `create_pipeline.pl` that you ran in a previous step created a tarball (e.g., `melt-workflow.tar.gz`)
 containing all of the workflow files. Use the following Toil command to upload the workflow tarball to the Toil
@@ -258,7 +259,7 @@ leader node:
 toil rsync-cluster -z us-east-1a tcm1 ./melt-workflow.tar.gz :/root/
 ```
 
-## Set up worker nodes
+### 8. Set up worker nodes
 
 Two things need to happen on each worker node before running a MELT workflow:
 1. Log in to Docker and retrieve the access-restricted MELT Docker image from Amazon ECR
@@ -267,8 +268,6 @@ Two things need to happen on each worker node before running a MELT workflow:
 These steps are partially automated by a script but you will need to identify the public IP addresses of
 the AWS worker nodes (using the AWS console) in order to copy files to and run commands on the Toil
 worker nodes.
-
-### Log in to docker and distribute config.json
 
 First, run the following command on the local machine to show the `docker login` command needed to 
 retrieve the MELT Docker image from Amazon's ECR (Elastic Container Registry):
@@ -308,16 +307,17 @@ user@local_machine$ scp config.json core@<aws_instance_public_ip>:
 user@local_machine$ scp $CLOUD_MELT_HOME/bin/setup-worker-node.sh core@<aws_instance_public_ip>:
 user@local_machine$ ssh core@<aws_instance_public_ip> './setup-worker-node.sh'
 ```
-
 TODO - add script to run setup steps in parallel for larger clusters
 
-### Run toil ssh-cluster to connect to Toil leader node
+### 9. Uncompress tarball (on Toil leader node)
+
+Run toil ssh-cluster to connect to the Toil leader node:
 
 ```
 user@local_machine$ toil ssh-cluster -z us-east-1a tcm1
 ```
 
-### Uncompress tarball (on Toil leader node)
+Change to the `/root/` directory and uncompress the tarball:
 
 ```
 root@aws_toil_leader$ cd /root
@@ -325,7 +325,7 @@ root@aws_toil_leader$ tar xzf melt-workflow.tar.gz
 root@aws_toil_leader$ cd melt-workflow
 ```
 
-### Run workflow master script (on Toil leader node)
+### 10. Run workflow master script (on Toil leader node)
 
 ```
 root@aws_toil_leader$ time ./run-workflow.sh
@@ -334,7 +334,7 @@ root@aws_toil_leader$ time ./run-workflow.sh
 Make sure that if you wish to check the step 1 output before proceeding with step 2 that the 
 `run-workflow.sh` script has been updated accordingly.
 
-### Monitor workflow progress
+### 11. Monitor workflow progress
 
 As the workflow runs messages will be printed to the terminal as Toil launches and completes 
 jobs. One can also ssh directly to the worker nodes and use `top` and/or `ps` to see what 
@@ -346,7 +346,7 @@ is recommended that the `ssh-cluster` and subsequent `run-workflow.sh` commands 
 a machine with a stable internet connection that will not be taken offline until the workflow
 completes.
 
-### Create tarball of all the files to be saved (on Toil leader node)
+### 12. Create tarball of all the files to be saved (on Toil leader node)
 
 Once the workflow completes, create a tarball of all the output and/or intermediate files
 that should be preserved after the cluster is shutdown. At the very least this should 
@@ -356,7 +356,7 @@ include the final VCF files and perhaps also the *pre_geno.tsv files:
 root@aws_toil_leader$ tar czvf melt-results.tar.gz *.vcf *.tsv
 ```
 
-### Log out of Toi leader and run rsync-cluster to transfer results back to local machine
+### 13. Log out of Toi leader and run rsync-cluster to transfer results back to local machine
 
 Once the tarball has been created log out of the toil leader node and run the 
 following `rsync-cluster` to transfer the tarball back to the local machine:
@@ -365,7 +365,7 @@ following `rsync-cluster` to transfer the tarball back to the local machine:
 user@local_machine$ toil rsync-cluster -z us-east-1a tcm1 :/root/melt-results.tar.gz ./
 ```
 
-### Run toil destroy-cluster to shut down the toil cluster
+### 14. Run toil destroy-cluster to shut down the toil cluster
 
 Once the result files have been safely transferred and verified the cluster can be
 shut down:
@@ -378,7 +378,7 @@ __NOTE:__ AWS charges will continue to accrue until the cluster is shut down, so
 _do not_ skip this step or the next one, ensuring that the EC2 instances have
 been terminated.
 
-### Check AWS EC2 page to ensure that the machines have been shut down
+### 15. Check AWS EC2 page to ensure that the machines have been shut down
 
 Check the AWS console's [Running Instances][aws_ec2_instances] page to ensure that all of the 
 cluster nodes terminated. If they do not shut down automatically they can be halted and deleted
