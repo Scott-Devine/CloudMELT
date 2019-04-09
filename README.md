@@ -71,7 +71,10 @@ Set an environment variable, CLOUD_MELT_HOME, to the location of the downloaded 
 user@local_machine$ export CLOUD_MELT_HOME=/home/username/CloudMELT
 ```
 
-**NOTE FOR IGS USERS:** The CloudMELT code has been installed on all IGS machines at ??? (TODO)
+**NOTE FOR IGS USERS:** The CloudMELT git repo can be found in /local/projects-t3/DEVINElab/CloudMELT:
+```
+export CLOUD_MELT_HOME=/local/projects-t3/DEVINElab/CloudMELT
+```
 
 [rel_page]: https://github.com/jonathancrabtree/CloudMELT/releases
 [melt_github]: https://github.com/jonathancrabtree/CloudMELT
@@ -179,11 +182,13 @@ Note that:
 changed to be more descriptive.
 * Just as some MELT-Split steps require the same inputs (e.g., ref_fasta_file, ref_bed_file/genes_bed_file), some arguments are repeated across the config files and should be kept consistent.
 * All of the file paths that start with "/opt" or "/toil" are paths _in the Docker container_ in which MELT, Bowtie, and mosdepth are installed.
-* The predefined reference files start with "/opt" whereas files generated in a previous step (e.g., LINE1.pre_geno.tsv) start with "/toil".
+* The predefined reference files start with "/opt" whereas files generated in a previous step (e.g., LINE1.pre_geno.tsv) start with "/toil". When in doubt follow the pattern used in the example files.
 * MELT (and the corresponding CWL workflows) support other parameters that aren't used in these particular config files. To see all of the parameters for a 
-particular workflow step, check the `inputs` section of the corresponding .cwl file e.g., [cwl/melt-grp.cwl][cwl/melt-grp.cwl]
+particular workflow step, check the `inputs` section of the corresponding .cwl file e.g., [cwl/melt-grp.cwl][melt_grp]
 * These example configuration files use hs37d5 as the human reference sequence and the hg19 reference annotation.
 * MELT-Split is being run here on only two mobile element types: LINE1 and ALU. SVA and HERVK are also available and any combination of the 4 may be specified in the config files.
+
+[melt_grp]: cwl/melt-grp.cwl
 
 ### 5. Run `create_pipeline.pl` to create the CloudMELT pipeline
 
@@ -199,19 +204,22 @@ user@local_machine$ $CLOUD_MELT_HOME/bin/create_pipeline.pl \
  --toil_jobstore='aws:us-east-1:tj1'
 ```
 
-This command can also be found in the [create_pipeline.sh][examples/1000genomes-10-samples/create_pipeline.sh] 
-shell script in the example directory. It should create a new directory, `melt-workflow` and populate it 
-with the files necessary to run the workflow. It will then create a gzipped tar file from that directory, 
+This command can also be found in the [create_pipeline.sh][ex_create_pipeline]
+shell script in the example directory. It should create a new directory, `melt-workflow`, populate it 
+with the files necessary to run the workflow and package everything into a gzipped tar file called
 `melt-workflow.tar.gz`
+
+[ex_create_pipeline]: examples/1000genomes-10-samples/create_pipeline.sh] 
 
 Note that:
 * The `toil_jobstore` is tied to a specific AWS region (`us-east-1` in this case.) Toil's jobstore consists
 of an AWS database and S3 bucket used to hold intermediate workflow outputs and information on the current
 state of the workflow.
 * The script `melt-workflow/run-workflow.sh` will execute the four steps of the workflow on the AWS/Toil leader node.
-If, for example, you wish to check the output of step 1 before running step 2, this script should be edited so that
-it exits after running step 1 (and then, once the output has been verified, to run the remaining steps from 2-4.) In 
-this particular case you may wish to split the run script into two or more parts.
+If, for example, you wish to check the output of step 1 before running step 2, or use the GroupAnalysis reproducibility workaround
+described below then this script should be edited so that it exits after running step 1. Then, once the output has 
+been verified or the workaround applied, it can be edited again to skip the first step and run the remaining ones.) 
+Or you may wish to split the run script into two or more parts that can be run separately.
 * If any edits are made to `run-workflow.sh` or any of the other files in `melt-workflow`, the tar file will
 have to be rebuilt before uploading it to the Toil leader node on AWS.
 
@@ -230,12 +238,13 @@ for a complete list). In addition, CloudMELT requires that the instances have SS
 ephemeral storage, meaning that only instance types with local SSD storage can be used.
 The "i3" series of storage-optimized instance types all have SSD support. It is not 
 absolutely necessary for the Toil leader node to have SSD storage, although it's 
-recommended that at least a `t2.medium` instance be used for the leader - Toil prefers to
-have at least 4 GiB of memory on the leader node.
+recommended that at least a `t2.medium` instance be used for the leader - Toil requires
+at least 4 GiB of memory on the leader node.
 
-For example, here is a Toil command to create a static cluster named `tcm1` in the `us-east-1a`
+For example, here is a Toil command that will create a static cluster named `tcm1` in the `us-east-1a`
 zone with a leader node of type `t2.medium` and a single worker node of type `i3.xlarge`. 
-At the time of this writing such an on-demand cluster will cost approximately 36 cents per hour to operate:
+At the time of this writing such an on-demand cluster will cost approximately 36 cents per hour to operate
+until it is shut down with the `destroy-cluster` command:
 
 ```
 toil launch-cluster tcm1 --leaderNodeType t2.medium --zone us-east-1a --keyPairName kp1 --nodeTypes i3.xlarge -w 1
@@ -244,6 +253,8 @@ toil launch-cluster tcm1 --leaderNodeType t2.medium --zone us-east-1a --keyPairN
 Detailed information on instance types and on-demand instance pricing can be found on the [Amazon EC2 Pricing][on_demand_pricing] page.
 
 Note that:
+* It can take a few minutes for the cluster to become fully operational, at which point the `launch-cluster` command should 
+exit and return you to the command prompt.
 * "tcm1" is the cluster name - you will need this to run commands on the cluster later
 * The `--zone` specified (e.g., `us-east-1a`) must match the AWS region (e.g., `us-east-1`) provided to the pipeline creation script.
 * The `--keyPairName` must identify an ssh key pair associated with your AWS account: it will be used to allow you to connect to the
@@ -268,12 +279,14 @@ toil rsync-cluster -z us-east-1a tcm1 ./melt-workflow.tar.gz :/root/
 
 Two things need to happen on each worker node before running a MELT workflow:
 1. Log in to Docker and retrieve the access-restricted MELT Docker image from Amazon ECR
-2. Create symlink from /mnt/ephemeral/tmp (SSD storage) to /root/tmp
+2. Create symlink from `/mnt/ephemeral/tmp` (the per-instance SSD storage) to `/root/tmp`
 
 These steps are partially automated by a script but you will need to
 identify the public IP addresses of the AWS worker nodes (using the
 AWS console) in order to copy files to and run commands on each of the
-Toil worker nodes. One way to do this is to use the AWS Console.
+Toil worker nodes. One way to do this is to use the AWS Console's list of [Running Instances][aws_ec2_instances]: 
+click on each instance in turn and then copy the _public_ IP address into the commands
+shown below.
 
 First, run the following command on the local machine to show the `docker login` command needed to 
 retrieve the MELT Docker image from Amazon's ECR (Elastic Container Registry):
@@ -313,7 +326,7 @@ user@local_machine$ scp config.json core@<aws_instance_public_ip>:
 user@local_machine$ scp $CLOUD_MELT_HOME/bin/setup-worker-node.sh core@<aws_instance_public_ip>:
 user@local_machine$ ssh core@<aws_instance_public_ip> './setup-worker-node.sh'
 ```
-TODO - add script to run setup steps in parallel for larger clusters
+TODO - add script to run setup steps in parallel for larger clusters - the Docker pull can be slow.
 
 ### 9. Uncompress tarball (on Toil leader node)
 
@@ -323,7 +336,7 @@ Run toil ssh-cluster to connect to the Toil leader node:
 user@local_machine$ toil ssh-cluster -z us-east-1a tcm1
 ```
 
-Change to the `/root/` directory and uncompress the tarball:
+Change to the `/root/` directory and uncompress the workflow tarball:
 
 ```
 root@aws_toil_leader$ cd /root
@@ -337,41 +350,42 @@ root@aws_toil_leader$ cd melt-workflow
 root@aws_toil_leader$ time ./run-workflow.sh
 ```
 
-Make sure that if you wish to check the step 1 output before proceeding with step 2 that the 
-`run-workflow.sh` script has been updated accordingly.
+Make sure that if you wish to check the step 1 output (or apply the GroupAnalysis workaround) before 
+proceeding with step 2 that the `run-workflow.sh` script has been updated accordingly.
 
 ### 11. Monitor workflow progress
 
 As the workflow runs messages will be printed to the terminal as Toil launches and completes 
 jobs. One can also ssh directly to the worker nodes and use `top` and/or `ps` to see what 
-part of the pipeline is running. On a cluster of this type the example 10 genome analysis 
+part of the pipeline is running. On a cluster of this size the example 10 genome analysis 
 should take around 2.5 hours to run and cost less than $1.00.
 
 __NOTE:__ Running a pipeline as a background process has not yet been tested, so for now it
 is recommended that the `ssh-cluster` and subsequent `run-workflow.sh` commands be run from
 a machine with a stable internet connection that will not be taken offline until the workflow
-completes.
+completes (i.e., you'll remain logged in to the Toil leader node for the duration of the 
+pipeline.)
 
 ### 12. Create tarball of all the files to be saved (on Toil leader node)
 
 Once the workflow completes, create a tarball of all the output and/or intermediate files
-that should be preserved after the cluster is shutdown. At the very least this should 
-include the final VCF files and perhaps also the *pre_geno.tsv files:
+that should be preserved after the cluster is shut down. At the very least this should 
+include the final VCF files and perhaps also the pre_geno.tsv files:
 
 ```
 root@aws_toil_leader$ tar czvf melt-results.tar.gz *.vcf *.tsv
 ```
 
-### 13. Log out of Toi leader and run rsync-cluster to transfer results back to local machine
+### 13. Log out of Toil leader and run rsync-cluster to transfer results back to local machine
 
 Once the tarball has been created log out of the toil leader node and run the 
-following `rsync-cluster` to transfer the tarball back to the local machine:
+following `rsync-cluster` command to transfer the tarball back to the local machine:
 
 ```
 user@local_machine$ toil rsync-cluster -z us-east-1a tcm1 :/root/melt-results.tar.gz ./
 ```
 
-### 14. Run toil destroy-cluster to shut down the toil cluster
+### 14. Run Toil destroy-cluster to shut down the toil cluster
 
 Once the result files have been safely transferred and verified the cluster can be
 shut down:
@@ -381,27 +395,27 @@ user@local_machine$ toil destroy-cluster -z us-east-1a tcm1
 ```
 
 __NOTE:__ AWS charges will continue to accrue until the cluster is shut down, so 
-_do not_ skip this step or the next one, ensuring that the EC2 instances have
-been terminated.
+_do not_ skip this step or the next one, ensuring that all of the EC2 instances have
+terminated.
 
 ### 15. Check AWS EC2 page to ensure that the machines have been shut down
 
 Check the AWS console's [Running Instances][aws_ec2_instances] page to ensure that all of the 
 cluster nodes terminated. If they do not shut down automatically they can be halted and deleted
-from the AWS console (though this should not be necessary.)
+directly from the AWS console (though this should not be necessary.)
 
 [aws_ec2_instances]: https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:sort=desc:dnsName
 
 
 # Reproducibility
 
-The current version (v2.1.5) of MELT can produce slightly different output depending on the
+Recent versions (v2.0.5-v2.1.5) of MELT can produce slightly different output depending on the
 order in which the individual samples' .bed files are processed in step 2 (GroupAnalysis).
 The end user does not have direct control over the order in which these files are processed
 and it can differ from machine to machine, or in the case of running on AWS, from VM to VM.
 The differences typically manifest as relatively small (e.g. 1-4) differences in the LP and
 RP values reported by MELT, which can also result in low-evidence transposon calls showing
-up in some runs but not others (even when the inputs are identical.)
+up in some runs but not others (and all of this holds true even though the inputs are identical.)
 
 A workaround exists to eliminate this source of result variability and may be applied by 
 rewriting the .bed files after step 1 has completed but before step 2 is run. In brief, it
@@ -418,6 +432,7 @@ After making this change step 2 can be run and any subsequent analysis of the sa
 with the same .tmp.bed concatenation order should produce produce the same final result.
 
 TODO - add a script and/or `create_pipeline.pl` option to automate this step.
+
 TODO - sort `all.tmp.bed` so that the insertions with the most (by sample and/or read count) support appear first
 
 
@@ -426,7 +441,7 @@ TODO - sort `all.tmp.bed` so that the insertions with the most (by sample and/or
 As noted earlier, CloudMELT relies on a Docker container that hosts the MELT software and 
 its dependencies, in addition to the reference database(s) and transposon files. The 
 code to create this Docker container and push it to the Amazon ECR (Elastic Container 
-Registry) can be found in the [docker/][docker/] subdirectory of the CloudMELT 
+Registry) can be found in the [docker/][] subdirectory of the CloudMELT 
 repository.
 
 TODO - add option to specify MELT Docker URI to `create_pipeline.pl`
@@ -434,24 +449,24 @@ TODO - add MELT Dockerfile for hg38-based analyses
 
 # Running MELT-Deletion on AWS EC2
 
-TODO - `create_pipeline.pl` currently supports only MELT-Split
+`create_pipeline.pl` currently supports only MELT-Split
 
 
 # Troubleshooting
 
 ## Recovering from workflow failure
 
-If a workflow fails it may be necessary to clean/remove the Toil jobstore before attempting
+If a workflow fails it may be necessary to clean up the Toil jobstore before attempting
 to run it again (presumably after fixing whatever caused it to fail the first time.) The 
-following toil command will delete the specified toil jobstore, allowing a new one with the
+following Toil command will delete the specified Toil jobstore, allowing a new one with the
 same name to be created. Note that the jobstore must match the one specified by the 
 `--toil_jobstore` option of `create_pipeline.pl`:
 
 ```
-toil clean aws:us-east-1:tj1
+user@local_machine$ toil clean aws:us-east-1:tj1
 ```
 
-## Handling AWS instance limits.
+## AWS instance limits.
 
 The Toil `launch-cluster` command may fail with a message about exceeding AWS instance limts.
 AWS limits the number of instances of each VM type (e.g., i3.large, i3.xlarge) that a user
@@ -463,9 +478,9 @@ and click on "Limits" in the left hand menu bar. The on-demand instance limits s
 in a list on the right side of the screen along with a "Request increase" link for each
 instance type.
 
-# Limitations of current pipeline
+# Limitations of the current pipeline
 
-* Current pipeline assumes sample BAM files can be retrieved via HTTP GET
-* Current pipeline (and MELT) supports only BAM input files, not CRAM input files
-* BAM/CRAM files must be downloaded twice, once in step 1 and once in step 3.
+* It assumes sample BAM files can be retrieved via HTTP GET
+* The pipeline (and MELT) support only BAM input files, not CRAM input files
+* The BAM/CRAM files are downloaded twice, once in step 1 and once in step 3.
 
