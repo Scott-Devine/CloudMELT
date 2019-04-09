@@ -441,10 +441,12 @@ TODO - sort `all.tmp.bed` so that the insertions with the most (by sample and/or
 As noted earlier, CloudMELT relies on a Docker container that hosts the MELT software and 
 its dependencies, in addition to the reference database(s) and transposon files. The 
 code to create this Docker container and push it to the Amazon ECR (Elastic Container 
-Registry) can be found in the [docker/][] subdirectory of the CloudMELT 
+Registry) can be found in the [docker/][gh_docker] subdirectory of the CloudMELT 
 repository.
 
-TODO - add option to specify MELT Docker URI to `create_pipeline.pl`
+[gh_docker]: docker/
+
+TODO - add option to specify MELT Docker URI to `create_pipeline.pl`  
 TODO - add MELT Dockerfile for hg38-based analyses
 
 # Running MELT-Deletion on AWS EC2
