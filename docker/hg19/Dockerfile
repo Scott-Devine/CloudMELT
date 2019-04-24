@@ -36,8 +36,6 @@ RUN curl -L -O https://github.com/brentp/mosdepth/releases/download/v0.2.5/mosde
 
 RUN chmod go+rwx /root
 
-COPY NA12878.chr22.sorted.bam /data/
-COPY NA12878.chr22.sorted.bam.bai /data/
 COPY commas_to_newlines.sh mosdepth2cov.py cwltool_then_clean_tmp /usr/local/bin/
 
 CMD ["/bin/bash"]
