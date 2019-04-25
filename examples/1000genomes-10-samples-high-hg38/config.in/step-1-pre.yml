@@ -1,0 +1,12 @@
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/GRCh38_full_analysis_set_plus_decoy_hla.fa
+genes_bed_file: 
+  class: File
+  path: /opt/MELTv2.1.5/add_bed_files/Hg38/Hg38.genes.bed
+transposon_zip_files: 
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/ALU_MELT.zip }
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/HERVK_MELT.zip }
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/LINE1_MELT.zip }
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/SVA_MELT.zip }
+min_coverage: 4

@@ -1,0 +1,6 @@
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/GRCh38_full_analysis_set_plus_decoy_hla.fa
+ref_bed_file: 
+  class: File
+  path: /opt/MELTv2.1.5/add_bed_files/Hg38/Hg38.genes.bed
