@@ -12,6 +12,7 @@ create_pipeline.pl - Create a CloudMELT pipeline to run a MELT-Split analysis on
          --workflow_dir=./melt-workflow
          --toil_jobstore='aws:us-east-1:tj1'
          --docker_image_uri=123456789.ecr.us-east-1.amazonaws.com/umigs/melt:hg19-latest
+         --coverage_method=mosdepth|user
        [ --sample_regex='([A-Z0-9]+)\.mapped'
          --cloud_melt_home=/path/to/CloudMELT
          ]
@@ -41,6 +42,12 @@ use Pod::Usage;
 my $DEFAULT_SAMPLE_REGEX = '([A-Z0-9]+)\.mapped';
 my $TOIL_INPUT_DIR = "../";
 my $TOIL_OUTPUT_DIR = "/toil/";
+
+# coverage methods and corresponding step 1 file
+my $COVERAGE_METHODS = {
+    'mosdepth' => 'melt-split-pre-mosdepth-cov-ind.cwl',
+    'user' => 'melt-split-pre-user-cov-ind.cwl',
+};
 
 # list of workflow steps and associated files
 my $STEPS = [
@@ -103,6 +110,7 @@ my $options = {};
 	    "workflow_dir=s",
 	    "toil_jobstore=s",
 	    "docker_image_uri=s",
+	    "coverage_method=s",
 	    "sample_regex=s",
 	    "cloud_melt_home=s",
             "help|h",
@@ -356,7 +364,13 @@ map { $_->close() } values %$m_fhs;
 # --------------------------------------------
 my $files_copied = {};
 
-# copy CWL file, inserting docker URI where needed
+# keyword-based substitutions
+my $cwl_subs = {
+    'COVERAGE_CWL_FILE' => $COVERAGE_METHODS->{$options->{'coverage_method'}},
+    'DOCKER_IMAGE_URI' => $options->{'docker_image_uri'},
+};
+
+# copy CWL file, performing keyword substitutions as needed
 my $copy_cwl_file = sub {
     my($from_file, $to_file) = @_;
     my $ifh = FileHandle->new();
@@ -366,8 +380,16 @@ my $copy_cwl_file = sub {
     $ofh->open(">$to_file") || die "unable to write to $to_file";
     
     while (my $line = <$ifh>) {
-	# insert --docker_image_uri
-	$line =~ s/^(\s*dockerPull:).*$/$1 . ' ' . $options->{'docker_image_uri'}/e;
+	# <keyword> in CWL file triggers keyword substitution
+	# assumes at most one substitution per line
+	if ($line =~ /\<([A-Z_]+)\>/) {
+	    my $key = $1;
+	    if (!defined($cwl_subs->{$key})) {
+		die "no substitution found for keyword $key";
+	    }
+	    $line =~ s/\<([A-Z_]+)\>/$cwl_subs->{$key}/e;
+	    die "multiple substitutions found in $from_file" if ($line =~ /\<([A-Z_]+)\>/);
+	}
 	print $ofh $line;
     }
     
@@ -429,11 +451,16 @@ sub check_parameters {
   my $options = shift;
     
   ## make sure required parameters were passed
-  my @required = qw(sample_uri_list config_dir workflow_dir toil_jobstore docker_image_uri);
+  my @required = qw(sample_uri_list config_dir workflow_dir toil_jobstore docker_image_uri coverage_method);
   for my $option ( @required ) {
     unless ( defined $options->{$option} ) {
       die("--$option is a required option");
     }
+  }
+
+  ## check that a valid coverage_method is specified
+  if (!defined($COVERAGE_METHODS->{$options->{'coverage_method'}})) {
+      die($options->{'coverage_method'} . " is not a valid input for --coverage_method");
   }
 
   ## check that config_dir exists
