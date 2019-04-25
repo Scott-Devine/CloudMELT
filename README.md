@@ -55,9 +55,9 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
 
 This section provides a detailed walkthrough of how to run CloudMELT on 10 low-coverage samples
 from the [1000 Genomes Project][1k_genomes]. All of the necessary configuration files to run this example
-can be found in the CloudMELT GitHub repo at [examples/1000genomes-10-samples/][example].
+can be found in the CloudMELT GitHub repo at [examples/1000genomes-10-samples-low-hg19/][example].
 
-[example]: examples/1000genomes-10-samples/
+[example]: examples/1000genomes-10-samples-low-hg19/
 [1K_genomes]: http://www.internationalgenome.org/
 
 ### 1. Obtain a copy of the CloudMELT code
@@ -91,10 +91,10 @@ user@local_machine$ cd cloud_melt_run
 
 ### 3. Download/create BAM file list
 
-Download the following file to your local working directory: [examples/1000genomes-10-samples/sample_uris.txt][sample_list].
+Download the following file to your local working directory: [examples/1000genomes-10-samples-low-hg19/sample_uris.txt][sample_list].
 It contains 10 low-coverage samples from the 1000 Genomes Project, all of them BAM files hosted on S3.
 
-[sample_list]: examples/1000genomes-10-samples/sample_uris.txt
+[sample_list]: examples/1000genomes-10-samples-low-hg19/sample_uris.txt
 
 Or, use your favorite editor to create a list of BAM files to process. Currently these must be specified
 as http or https URIs that an AWS EC2 instance can retrieve via `curl` or `wget`. For example, here are
@@ -116,7 +116,7 @@ when the pipeline is running.
 CloudMELT is configured using the same YAML (.yml) file format supported by the Common Workflow Language.
 For MELT-Split the user must provide a .yml configuration file for each of the 4 steps of the MELT-Split
 pipeline (Preprocessing/IndividualAnalysis, GroupAnalysis, Genotyping, and MakeVCF). Download the 4 
-configuration files for our 10 sample example from [examples/1000genomes-10-samples/config.in/][config_dir]
+configuration files for our 10 sample example from [examples/1000genomes-10-samples-low-hg19/config.in/][config_dir]
 and place them into a subdirectory called "config.in" (or simply copy this directory from the CloudMELT 
 source/repository directly into your working directory):
 
@@ -125,11 +125,11 @@ source/repository directly into your working directory):
  3. [step-3-gen.yml]
  4. [step-4-vcf.yml]
 
-[config_dir]: examples/1000genomes-10-samples/config.in/
-[step-1-pre.yml]: examples/1000genomes-10-samples/config.in/step-1-pre.yml
-[step-2-grp.yml]: examples/1000genomes-10-samples/config.in/step-2-grp.yml
-[step-3-gen.yml]: examples/1000genomes-10-samples/config.in/step-3-gen.yml
-[step-4-vcf.yml]: examples/1000genomes-10-samples/config.in/step-4-vcf.yml
+[config_dir]: examples/1000genomes-10-samples-low-hg19/config.in/
+[step-1-pre.yml]: examples/1000genomes-10-samples-low-hg19/config.in/step-1-pre.yml
+[step-2-grp.yml]: examples/1000genomes-10-samples-low-hg19/config.in/step-2-grp.yml
+[step-3-gen.yml]: examples/1000genomes-10-samples-low-hg19/config.in/step-3-gen.yml
+[step-4-vcf.yml]: examples/1000genomes-10-samples-low-hg19/config.in/step-4-vcf.yml
 
 Let's look at the content of these files for the 10-sample 1000 Genomes example:
 
@@ -209,7 +209,7 @@ shell script in the example directory. It should create a new directory, `melt-w
 with the files necessary to run the workflow and package everything into a gzipped tar file called
 `melt-workflow.tar.gz`
 
-[ex_create_pipeline]: examples/1000genomes-10-samples/create_pipeline.sh] 
+[ex_create_pipeline]: examples/1000genomes-10-samples-low-hg19/create_pipeline.sh] 
 
 Note that:
 * The `toil_jobstore` is tied to a specific AWS region (`us-east-1` in this case.) Toil's jobstore consists
