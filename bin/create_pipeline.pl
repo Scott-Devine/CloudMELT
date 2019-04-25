@@ -11,6 +11,7 @@ create_pipeline.pl - Create a CloudMELT pipeline to run a MELT-Split analysis on
          --config_dir=./melt-config
          --workflow_dir=./melt-workflow
          --toil_jobstore='aws:us-east-1:tj1'
+         --docker_image_uri=123456789.ecr.us-east-1.amazonaws.com/umigs/melt:hg19-latest
        [ --sample_regex='([A-Z0-9]+)\.mapped'
          --cloud_melt_home=/path/to/CloudMELT
          ]
@@ -48,7 +49,8 @@ my $STEPS = [
 	'cwl' => 'melt-split-step-1.cwl',
 	'config_in' => 'step-1-pre.yml', 
 	'files' =>
-	    ['melt-split-pre-mosdepth-cov-ind.cwl', # includes both coverage methods
+	    ['melt-split-step-1b.cwl',
+	     'melt-split-pre-mosdepth-cov-ind.cwl', # includes both coverage methods
 	     'melt-split-pre-user-cov-ind.cwl',
 	     'melt-pre.cwl',
 	     'melt-cov-mosdepth.cwl',
@@ -61,7 +63,8 @@ my $STEPS = [
 	'cwl' => 'melt-split-step-2.cwl',
 	'config_in' => 'step-2-grp.yml',
 	'files' => 
-	    [ 'melt-grp.cwl',
+	    [ 'melt-split-step-2b.cwl',
+	      'melt-grp.cwl',
 	      'step-input-type.yml']
     },
     {
@@ -69,7 +72,8 @@ my $STEPS = [
 	'cwl' => 'melt-split-step-3.cwl',
 	'config_in' => 'step-3-gen.yml',
 	'files' => 
-	    [ 'melt-split-gen.cwl',
+	    [ 'melt-split-step-3b.cwl',
+	      'melt-split-gen.cwl',
 	      'melt-gen.cwl',
 	      'transposon-file-type.yml',
 	      'step-input-type.yml']
@@ -79,7 +83,8 @@ my $STEPS = [
 	'cwl' => 'melt-split-step-4.cwl',
 	'config_in' => 'step-4-vcf.yml',
 	'files' =>
-	    [ 'melt-vcf.cwl',
+	    [ 'melt-split-step-4b.cwl',
+	      'melt-vcf.cwl',
 	      'step-input-type.yml']
     }
     ];
@@ -97,6 +102,7 @@ my $options = {};
 	    "config_dir=s",
 	    "workflow_dir=s",
 	    "toil_jobstore=s",
+	    "docker_image_uri=s",
 	    "sample_regex=s",
 	    "cloud_melt_home=s",
             "help|h",
@@ -350,15 +356,33 @@ map { $_->close() } values %$m_fhs;
 # --------------------------------------------
 my $files_copied = {};
 
+# copy CWL file, inserting docker URI where needed
+my $copy_cwl_file = sub {
+    my($from_file, $to_file) = @_;
+    my $ifh = FileHandle->new();
+    $ifh->open($from_file) || die "unable to read from $from_file";
+
+    my $ofh = FileHandle->new();
+    $ofh->open(">$to_file") || die "unable to write to $to_file";
+    
+    while (my $line = <$ifh>) {
+	# insert --docker_image_uri
+	$line =~ s/^(\s*dockerPull:).*$/$1 . ' ' . $options->{'docker_image_uri'}/e;
+	print $ofh $line;
+    }
+    
+    map { $_->close() } ($ifh, $ofh);
+};
+
 foreach my $step (@$STEPS) {
-    foreach my $file (@{$step->{'files'}}) {
+    foreach my $file ($step->{'cwl'}, @{$step->{'files'}}) {
 	next if (defined($files_copied->{$file}));
 	my $from_path = File::Spec->catfile($cwl_dir, $file);
 	my $to_path = File::Spec->catfile($options->{'workflow_dir'}, $file);
 	die "$from_path not found" if (!-e $from_path);
 	print STDERR "INFO - copying $from_path to $to_path\n";
 	die "$to_path already exists - please remove and rerun" if (-e $to_path);
-	&run_sys_command("cp $from_path $to_path");
+	&$copy_cwl_file($from_path, $to_path);
 	$files_copied->{$file} = 1;
     }
 }
@@ -405,7 +429,7 @@ sub check_parameters {
   my $options = shift;
     
   ## make sure required parameters were passed
-  my @required = qw(sample_uri_list config_dir workflow_dir toil_jobstore);
+  my @required = qw(sample_uri_list config_dir workflow_dir toil_jobstore docker_image_uri);
   for my $option ( @required ) {
     unless ( defined $options->{$option} ) {
       die("--$option is a required option");
