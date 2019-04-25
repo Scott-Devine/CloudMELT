@@ -8,7 +8,7 @@ requirements:
     outdirMin: 15000
     coresMin: 1
   DockerRequirement:
-    dockerPull: 205226202704.dkr.ecr.us-east-1.amazonaws.com/umigs/melt
+    dockerPull: <DOCKER_IMAGE_URI>
     dockerOutputDirectory: /toil
   InlineJavascriptRequirement: {}
   InitialWorkDirRequirement:
