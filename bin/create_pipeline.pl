@@ -147,7 +147,7 @@ while (my $line = <$fh>) {
 	my($sample) = ($line =~ /$sample_regex/);
 	die "couldn't parse sample id from $line using --sample_regex $sample_regex" if (!defined($sample));
 	die "duplicate sample id $sample" if (defined($samples->{$sample}));
-	my($prefix) = ($line =~ /([^\/]+)\.bam$/);
+	my($prefix) = ($line =~ /([^\/]+)\.(bam|cram)$/);
 	die "couldn't parse file prefix from $line" if (!defined($prefix));
 	die "duplicate prefix $prefix" if (defined($prefixes->{$prefix}));
        	push(@$sample_list, { 'uri' => $line, 'sample' => $sample, 'prefix' => $prefix });
