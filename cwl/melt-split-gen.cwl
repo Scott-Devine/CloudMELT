@@ -41,6 +41,10 @@ steps:
           type: string
           inputBinding:
             position: 1
+        ref_fasta_file:
+          type: File
+          inputBinding:
+            position: 2
       outputs:
        reads_bam_file:
           type: File
@@ -52,6 +56,7 @@ steps:
             glob: "*.bai"
     in:
       reads_bam_uri: reads_bam_uri
+      ref_fasta_file: ref_fasta_file
     out: [reads_bam_file, reads_bai_file]
 
   group:
