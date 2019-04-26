@@ -26,10 +26,21 @@ RUN pip install virtualenv && virtualenv ~/venv && pip install cwlref-runner
 COPY GRCh38_full_analysis_set_plus_decoy_hla.fa /opt/MELTv2.1.5/reference/
 COPY GRCh38_full_analysis_set_plus_decoy_hla.fa.fai /opt/MELTv2.1.5/reference/
 
-RUN curl -L -O https://github.com/brentp/mosdepth/releases/download/v0.2.5/mosdepth && chmod ugo+x mosdepth && mv mosdepth /usr/local/bin/
+# mosdepth
+RUN curl -LO https://github.com/brentp/mosdepth/releases/download/v0.2.5/mosdepth && chmod ugo+x mosdepth && mv mosdepth /usr/local/bin/
+
+# samtools and dependencies
+RUN apt-get install -y libncurses5-dev zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev
+RUN curl -LO https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9.tar.bz2 \
+ && tar xjf samtools-1.9.tar.bz2 \
+ && cd samtools-1.9 \
+ && ./configure --prefix=/opt/samtools-1.9 \
+ && make \
+ && make install \ 
+ && cp /opt/samtools-1.9/bin/* /usr/local/bin/
 
 RUN chmod go+rwx /root
 
-COPY commas_to_newlines.sh mosdepth2cov.py cwltool_then_clean_tmp /usr/local/bin/
+COPY commas_to_newlines.sh mosdepth2cov.py cwltool_then_clean_tmp get_bam_and_bai.pl /usr/local/bin/
 
 CMD ["/bin/bash"]

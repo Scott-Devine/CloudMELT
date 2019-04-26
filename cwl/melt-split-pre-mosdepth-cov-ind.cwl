@@ -54,11 +54,10 @@ outputs:
     outputSource: ind/tmp_bed_file
 
 steps:
-  get_bam_file:
+  get_bam_and_bai_file:
     run:
       class: CommandLineTool
-      baseCommand: ['curl']
-      arguments: ['-O']
+      baseCommand: ['get_bam_and_bai.pl']
       inputs:
         reads_bam_uri:
           type: string
@@ -69,43 +68,27 @@ steps:
           type: File
           outputBinding:
             glob: "*.bam"
-    in:
-      reads_bam_uri: reads_bam_uri
-    out: [reads_bam_file]
-
-  get_bai_file:
-    run:
-      class: CommandLineTool
-      baseCommand: ['curl']
-      arguments: ['-O']
-      inputs:
-        reads_bam_uri:
-          type: string
-          inputBinding:
-            position: 1
-            valueFrom: $(inputs.reads_bam_uri + ".bai")
-      outputs:
        reads_bai_file:
           type: File
           outputBinding:
             glob: "*.bai"
     in:
       reads_bam_uri: reads_bam_uri
-    out: [reads_bai_file]
+    out: [reads_bam_file, reads_bai_file]
 
   preprocess:
     run: melt-pre.cwl
     in:
       ref_fasta_file: ref_fasta_file
-      reads_bam_file: get_bam_file/reads_bam_file
-      reads_bai_file: get_bai_file/reads_bai_file
+      reads_bam_file: get_bam_and_bai_file/reads_bam_file
+      reads_bai_file: get_bam_and_bai_file/reads_bai_file
     out: [dr_bam_file, fastq_file]
 
   mosdepth_coverage:
     run: melt-cov-mosdepth.cwl
     in:
-      bam_file: get_bam_file/reads_bam_file
-      bai_file: get_bai_file/reads_bai_file
+      bam_file: get_bam_and_bai_file/reads_bam_file
+      bai_file: get_bam_and_bai_file/reads_bai_file
       min_coverage: min_coverage
     out: [estimated_coverage, estimated_coverage_file]
 
@@ -113,8 +96,8 @@ steps:
     run: melt-ind.cwl
     scatter: transposon_zip_file
     in:
-      reads_bam_file: get_bam_file/reads_bam_file
-      reads_bai_file: get_bai_file/reads_bai_file
+      reads_bam_file: get_bam_and_bai_file/reads_bam_file
+      reads_bai_file: get_bam_and_bai_file/reads_bai_file
       dr_bam_file: preprocess/dr_bam_file
       fastq_file: preprocess/fastq_file
       ref_fasta_file: ref_fasta_file
