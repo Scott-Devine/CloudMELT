@@ -209,7 +209,7 @@ foreach my $step (@$STEPS) {
     print $fh "cwl_files:\n";
     print $fh join("\n", map {" - { class: File, path: ../" . $_ . "}"} @{$step->{'files'}});
     print $fh "\n";
-    if ($step == 1) {
+    if ($step->{'name'} eq 'step1') {
 	print $fh "melt_config_files:\n";
     } else {
 	print $fh "transposons:\n";
