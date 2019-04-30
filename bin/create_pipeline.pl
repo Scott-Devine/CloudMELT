@@ -41,7 +41,8 @@ use Pod::Usage;
 # --------------------------------------------
 my $DEFAULT_SAMPLE_REGEX = '([A-Z0-9]+)\.mapped';
 my $TOIL_INPUT_DIR = "../";
-my $TOIL_OUTPUT_DIR = "/toil/";
+my $DOCKER_OUTPUT_DIR = "/melt";
+my $CONFIG_DIR = "config";
 
 # coverage methods and corresponding step 1 file
 my $COVERAGE_METHODS = {
@@ -124,7 +125,7 @@ my $options = {};
 # --------------------------------------------
 
 # create output directory for config files
-my $config_out = File::Spec->catfile($options->{'workflow_dir'}, 'config');
+my $config_out = File::Spec->catfile($options->{'workflow_dir'}, $CONFIG_DIR);
 mkdir $config_out;
 
 my $cwl_dir = File::Spec->catfile($options->{'cloud_melt_home'}, 'cwl');
@@ -266,10 +267,11 @@ my $get_step1_files = sub {
 };
   
 my $print_file_list = sub {
-    my($fh, $name, $files, $prefix) = @_;
+    my($fh, $name, $files, $outdir) = @_;
     $fh->print("${name}:\n");
     foreach my $file (@$files) {
-	$fh->print(" - { class: File, path: ${prefix}${file} }\n");
+	my $path = File::Spec->catfile($outdir, $file);
+	$fh->print(" - { class: File, path: ${path} }\n");
     }
 };
 
@@ -302,24 +304,24 @@ foreach my $t (@$transposons) {
 
     my $aligned_bam_files = &$get_step1_files($t->{'name'}, ['aligned.final.sorted.bam']);
     my $aligned_bai_files = &$get_step1_files($t->{'name'}, ['aligned.final.sorted.bam.bai']);
-    &$print_file_list($cfh, 'aligned_bam_files', $aligned_bam_files, $TOIL_OUTPUT_DIR);
+    &$print_file_list($cfh, 'aligned_bam_files', $aligned_bam_files, $DOCKER_OUTPUT_DIR);
     push(@$step2_input_files, @$aligned_bam_files);
     push(@$step2_input_files, @$aligned_bai_files);
 
     my $hum_breaks_bam_files = &$get_step1_files($t->{'name'}, ['hum_breaks.sorted.bam']);
     my $hum_breaks_bai_files = &$get_step1_files($t->{'name'}, ['hum_breaks.sorted.bam.bai']);
-    &$print_file_list($cfh, 'hum_breaks_bam_files', $hum_breaks_bam_files, $TOIL_OUTPUT_DIR);
+    &$print_file_list($cfh, 'hum_breaks_bam_files', $hum_breaks_bam_files, $DOCKER_OUTPUT_DIR);
     push(@$step2_input_files, @$hum_breaks_bam_files);
     push(@$step2_input_files, @$hum_breaks_bai_files);
 
     my $pulled_bam_files = &$get_step1_files($t->{'name'}, ['pulled.sorted.bam']);
     my $pulled_bai_files = &$get_step1_files($t->{'name'}, ['pulled.sorted.bam.bai']);
-    &$print_file_list($cfh, 'pulled_bam_files', $pulled_bam_files, $TOIL_OUTPUT_DIR);
+    &$print_file_list($cfh, 'pulled_bam_files', $pulled_bam_files, $DOCKER_OUTPUT_DIR);
     push(@$step2_input_files, @$pulled_bam_files);
     push(@$step2_input_files, @$pulled_bai_files);
 
     my $tmp_bed_files = &$get_step1_files($t->{'name'}, ['tmp.bed']);
-    &$print_file_list($cfh, 'tmp_bed_files', $tmp_bed_files, $TOIL_OUTPUT_DIR);
+    &$print_file_list($cfh, 'tmp_bed_files', $tmp_bed_files, $DOCKER_OUTPUT_DIR);
     push(@$step2_input_files, @$tmp_bed_files);
     $cfh->close();
 
@@ -342,11 +344,13 @@ foreach my $t (@$transposons) {
     my $step4_input_files = [];
     my $geno_files = &$get_step1_files($t->{'name'}, ['tsv']);
     # pre_geno_file
-    $cfh->print("pre_geno_file: { class: File, path: /toil/" . $t->{'name'} . ".pre_geno.tsv }\n");
+    my $pg_path = File::Spec->catfile($DOCKER_OUTPUT_DIR, $t->{'name'} . ".pre_geno.tsv");
+
+    $cfh->print("pre_geno_file: { class: File, path: " . $pg_path . " }\n");
     push(@$step4_input_files, $t->{'name'} . ".pre_geno.tsv");
 
     # geno files
-    &$print_file_list($cfh, 'geno_files', $geno_files, $TOIL_OUTPUT_DIR);
+    &$print_file_list($cfh, 'geno_files', $geno_files, $DOCKER_OUTPUT_DIR);
     push(@$step4_input_files, @$geno_files);
     $cfh->close();
 
@@ -368,6 +372,7 @@ my $files_copied = {};
 my $cwl_subs = {
     'COVERAGE_CWL_FILE' => $COVERAGE_METHODS->{$options->{'coverage_method'}},
     'DOCKER_IMAGE_URI' => $options->{'docker_image_uri'},
+    'DOCKER_OUTPUT_DIR' => $DOCKER_OUTPUT_DIR,
 };
 
 # copy CWL file, performing keyword substitutions as needed
@@ -424,7 +429,7 @@ $rfh->print("export RUNNER='toil-cwl-runner --retryCount 0'\n\n");
 foreach my $step (@$STEPS) {
     my $sname = $step->{'name'};
     my $cwl = $step->{'cwl'};
-    my $conf_path = File::Spec->catfile($config_out, "${sname}.yml");
+    my $conf_path = File::Spec->catfile($CONFIG_DIR, "${sname}.yml");
     $rfh->print("# $sname\n");
     $rfh->print("time \$RUNNER ");
     $rfh->print("--jobStore '" . $options->{'toil_jobstore'} . "' ");

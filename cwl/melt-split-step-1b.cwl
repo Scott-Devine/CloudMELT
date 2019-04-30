@@ -9,7 +9,7 @@ requirements:
     coresMin: 1
   DockerRequirement:
     dockerPull: <DOCKER_IMAGE_URI>
-    dockerOutputDirectory: /toil
+    dockerOutputDirectory: <DOCKER_OUTPUT_DIR>
   InlineJavascriptRequirement: {}
   InitialWorkDirRequirement:
     listing: |
