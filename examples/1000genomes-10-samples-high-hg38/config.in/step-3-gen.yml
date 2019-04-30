@@ -2,7 +2,7 @@ ref_fasta_file:
   class: File
   path: /opt/MELTv2.1.5/reference/GRCh38_full_analysis_set_plus_decoy_hla.fa
 transposon_files:
-  - { pre_geno: { class: File, path: /toil/ALU.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/ALU_MELT.zip }}
-  - { pre_geno: { class: File, path: /toil/HERVK.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/HERVK_MELT.zip }}
-  - { pre_geno: { class: File, path: /toil/LINE1.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/LINE1_MELT.zip }}
-  - { pre_geno: { class: File, path: /toil/SVA.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/SVA_MELT.zip }}
+  - { pre_geno: { class: File, path: /melt/ALU.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/ALU_MELT.zip }}
+  - { pre_geno: { class: File, path: /melt/HERVK.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/HERVK_MELT.zip }}
+  - { pre_geno: { class: File, path: /melt/LINE1.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/LINE1_MELT.zip }}
+  - { pre_geno: { class: File, path: /melt/SVA.pre_geno.tsv }, zip: { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/SVA_MELT.zip }}

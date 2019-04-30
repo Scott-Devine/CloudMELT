@@ -4,3 +4,4 @@ ref_fasta_file:
 ref_bed_file: 
   class: File
   path: /opt/MELTv2.1.5/add_bed_files/Hg38/Hg38.genes.bed
+read_length: 150

@@ -9,4 +9,5 @@ transposon_zip_files:
   - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/HERVK_MELT.zip }
   - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/LINE1_MELT.zip }
   - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/SVA_MELT.zip }
-min_coverage: 4
+min_coverage: 30
+read_length: 150
