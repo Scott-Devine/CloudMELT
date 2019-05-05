@@ -439,6 +439,7 @@ foreach my $step (@$STEPS) {
     $rfh->print("\n\n");
 }
 $rfh->close();
+&run_sys_command("chmod u+x $run_path");
 
 # --------------------------------------------
 # create tarball
