@@ -267,12 +267,12 @@ check the AWS Console to see whether the Toil leader and worker nodes were creat
 
 ### 7. Upload workflow tarball
 
-Recall that the `create_pipeline.pl` that you ran in a previous step created a tarball (e.g., `melt-workflow.tar.gz`)
+Recall that the `create_pipeline.pl` that you ran in a previous step created a tarball (e.g., `melt_workflow.tar.gz`)
 containing all of the workflow files. Use the following Toil command to upload the workflow tarball to the Toil
 leader node:
 
 ```
-toil rsync-cluster -z us-east-1a tcm1 ./melt-workflow.tar.gz :/root/
+toil rsync-cluster -z us-east-1a tcm1 ./melt_workflow.tar.gz :/root/
 ```
 
 ### 8. Set up worker nodes
