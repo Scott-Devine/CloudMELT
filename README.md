@@ -340,8 +340,7 @@ Change to the `/root/` directory and uncompress the workflow tarball:
 
 ```
 root@aws_toil_leader$ cd /root
-root@aws_toil_leader$ tar xzf melt-workflow.tar.gz
-root@aws_toil_leader$ cd melt-workflow
+root@aws_toil_leader$ tar -xzf melt-workflow.tar.gz --strip-components=2
 ```
 
 ### 10. Run workflow master script (on Toil leader node)
