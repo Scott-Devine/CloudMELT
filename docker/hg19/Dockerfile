@@ -49,4 +49,7 @@ RUN chmod go+rwx /root
 
 COPY commas_to_newlines.sh mosdepth2cov.py cwltool_then_clean_tmp get_bam_and_bai.pl /usr/local/bin/
 
+# add patched v2.0.5 MELT jar
+COPY MELT-r38-v4-jc.jar /opt/MELT-v2.0.5-r38-v4.jar
+
 CMD ["/bin/bash"]
