@@ -13,6 +13,7 @@ create_pipeline.pl - Create a CloudMELT pipeline to run a MELT-Split analysis on
          --toil_jobstore='aws:us-east-1:tj1'
          --docker_image_uri=123456789.ecr.us-east-1.amazonaws.com/umigs/melt:hg19-latest
          --coverage_method=mosdepth|user
+         --run_melt_deletion
        [ --sample_regex='([A-Z0-9]+)\.mapped'
          --cloud_melt_home=/path/to/CloudMELT
          ]
@@ -33,6 +34,7 @@ Creates a CloudMELT pipeline to run a MELT-Split analysis on AWS EC2.
 use strict;
 use Getopt::Long qw(:config no_ignore_case no_auto_abbrev pass_through);
 use FileHandle;
+use File::Basename;
 use File::Spec;
 use Pod::Usage;
 
@@ -43,38 +45,62 @@ my $DEFAULT_SAMPLE_REGEX = '([A-Z0-9]+)\.mapped';
 my $TOIL_INPUT_DIR = "../";
 my $DOCKER_OUTPUT_DIR = "/melt";
 my $CONFIG_DIR = "config";
+my $GROUP_ANALYSIS_WORKAROUND_SCRIPT = "apply_group_analysis_workaround.pl";
 
-# coverage methods and corresponding step 1 file
-my $COVERAGE_METHODS = {
-    'mosdepth' => 'melt-split-pre-mosdepth-cov-ind.cwl',
-    'user' => 'melt-split-pre-user-cov-ind.cwl',
+# substitutions to apply to run MELT-Deletion
+my $MELT_DEL_SUBS = {
+    'DEL_STEP1_OUTPUT' => ', ',
+};
+
+# step1 file indexed on coverage method and whether to run MELT-Deletion (yes or no)
+my $STEP1_FILES = {
+    'mosdepth:no' => 'melt-split-pre-mosdepth-cov-ind.cwl',
+    'user:no' => 'melt-split-pre-user-cov-ind.cwl',
+    'user:yes' => 'melt-split-pre-user-cov-ind-del.cwl'
+};
+
+# step2 file indexed on whether to run MELT-Deletion (yes or no)
+my $STEP2_FILES = {
+    'no' => 'melt-grp.cwl',
+    'yes' => 'melt-grp-del-merge.cwl',
 };
 
 # list of workflow steps and associated files
 my $STEPS = [
+    # MELT-Split (and MELT-Deletion) step 1
     { 
 	'name' => 'step1', 
 	'cwl' => 'melt-split-step-1.cwl',
+	'del_cwl' => 'melt-split-del-step-1.cwl',
 	'config_in' => 'step-1-pre.yml', 
 	'files' =>
 	    ['melt-split-step-1b.cwl',
-	     'melt-split-pre-mosdepth-cov-ind.cwl', # includes both coverage methods
+	     'melt-split-del-step-1b.cwl',          # include MELT-Deletion option
+	     'melt-split-pre-mosdepth-cov-ind.cwl', # include both coverage methods
 	     'melt-split-pre-user-cov-ind.cwl',
+	     'melt-split-pre-user-cov-ind-del.cwl',
 	     'melt-pre.cwl',
 	     'melt-cov-mosdepth.cwl',
 	     'mosdepth.cwl',
 	     'melt-cov-user.cwl',
-	     'melt-ind.cwl']
+	     'melt-ind.cwl',
+	     'melt-del-gen.cwl']
     },
+    # MELT-Split (and MELT-Deletion) step 2
     { 
 	'name' => 'step2',
 	'cwl' => 'melt-split-step-2.cwl',
+	'del_cwl' => 'melt-split-del-step-2.cwl',
 	'config_in' => 'step-2-grp.yml',
+	'del_config_in' => 'step-2-del.yml',
 	'files' => 
 	    [ 'melt-split-step-2b.cwl',
+	      'melt-split-del-step-2b.cwl',
 	      'melt-grp.cwl',
+	      'melt-del-merge.cwl',
 	      'step-input-type.yml']
     },
+    # MELT-Split step 3
     {
 	'name' => 'step3',
 	'cwl' => 'melt-split-step-3.cwl',
@@ -86,6 +112,7 @@ my $STEPS = [
 	      'transposon-file-type.yml',
 	      'step-input-type.yml']
     },
+    # MELT-Split step 4
     { 
 	'name' => 'step4',
 	'cwl' => 'melt-split-step-4.cwl',
@@ -112,6 +139,7 @@ my $options = {};
 	    "toil_jobstore=s",
 	    "docker_image_uri=s",
 	    "coverage_method=s",
+	    "run_melt_deletion!",
 	    "sample_regex=s",
 	    "cloud_melt_home=s",
             "help|h",
@@ -130,6 +158,12 @@ mkdir $config_out;
 
 my $cwl_dir = File::Spec->catfile($options->{'cloud_melt_home'}, 'cwl');
 die "$cwl_dir does not exist or is not a directory" if ((!-e $cwl_dir) || (!-d $cwl_dir));
+
+# add MELT-Deletion to pipeline if requested
+if ($options->{'run_melt_deletion'}) {
+    print STDERR "INFO - adding MELT-Deletion steps to pipeline\n";
+    map {$_->{'cwl'} = $_->{'del_cwl'} if (defined($_->{'del_cwl'})) } @$STEPS;
+}
 
 # --------------------------------------------
 # read sample_uri_list, parse sample ids
@@ -161,8 +195,10 @@ print STDERR "INFO - read " . scalar(@$sample_list) . " sample(s) from $sample_u
 # --------------------------------------------
 # read config_files, parse transposons
 # --------------------------------------------
-my $transposons = [];
 my $in_transposons = 0;
+my $transposons = [];
+my $del_transposons = [];
+my $t_list = undef;
 
 foreach my $step (@$STEPS) {
     my $cpath = $step->{'config_in_path'};
@@ -173,20 +209,26 @@ foreach my $step (@$STEPS) {
 	next if ($line =~ /^reads_bam_uri/);
 	$step->{'config'} .= $line;
 
-	# parse transposons from step-1-pre
+	# parse MELT-Split transposons from step-1-pre
 	if ($step->{'name'} eq 'step1') {
 	    if ($line =~ /transposon_zip_files:/) {
 		$in_transposons = 1;
+		$t_list = $transposons;
 		next;
-	    } elsif ($in_transposons && $line =~ /^\S/) {
+	    } elsif ($line =~ /me_bed_files:/) {
+		$in_transposons = 1;
+		$t_list = $del_transposons;
+		next;
+	    }
+	    elsif ($in_transposons && $line =~ /^\S/) {
 		$in_transposons = 0;
 		next;
 	    }
 	    if ($in_transposons) {
-		if ($line =~ /path:\s*(\S+\/([^\/]+)_MELT\.zip)/) {
-		    push(@$transposons, {'zip_file' => $1, 'name' => $2 });
+		if ($line =~ /path:\s*(\S+\/([^\/]+)(_MELT\.zip|\.deletion(\.filtered)?\.bed))/) {
+		    push(@$t_list, {'file' => $1, 'name' => $2 });
 		} else {
-		    die "unable to parse transposon zip file from $line";
+		    die "unable to parse transposon zip file or bed file from $line";
 		}
 	    }
 	}
@@ -196,6 +238,19 @@ foreach my $step (@$STEPS) {
 	print STDERR join(", ", map { $_->{'name'} } @$transposons) . "\n";
     }
     $fh->close();
+
+    # same for del_config_in
+    my $del_cpath = $step->{'del_config_in_path'};
+
+    if (defined($del_cpath)) {
+	$step->{'del_config'} = "";
+	$fh->open($del_cpath) || die "unable to read $step config file $del_cpath";
+	while (my $line = <$fh>) {
+	    next if ($line =~ /^reads_bam_uri/);
+	    $step->{'del_config'} .= $line;
+	}
+	$fh->close();
+    }
 }
 
 # --------------------------------------------
@@ -204,6 +259,7 @@ foreach my $step (@$STEPS) {
 my $m_fhs = {};
 foreach my $step (@$STEPS) {
     my $sname = $step->{'name'};
+    next if (($sname =~ /del$/) && (!$options->{'run_melt_deletion'}));
     my $fh = $m_fhs->{$sname} = FileHandle->new();
     my $path = File::Spec->catfile($config_out, "${sname}.yml");
     $fh->open(">$path") || die "unable to write to $path";
@@ -212,7 +268,11 @@ foreach my $step (@$STEPS) {
     print $fh "\n";
     if ($step->{'name'} eq 'step1') {
 	print $fh "melt_config_files:\n";
-    } else {
+    } 
+    elsif ($step->{'name'} eq 'step1') {
+	print $fh "me_bed_files:\n";
+    }
+    else {
 	print $fh "transposons:\n";
     }
 }
@@ -281,7 +341,7 @@ my $print_comma_delim_file_list = sub {
 };
 
 # --------------------------------------------
-# write per-transposon config files
+# write per-transposon MELT-Split config files
 # --------------------------------------------
 foreach my $t (@$transposons) {
 
@@ -298,7 +358,7 @@ foreach my $t (@$transposons) {
     $cfh->print($STEPS_H->{'step2'}->{'config'});
 
     # add transposon_zip_file
-    $cfh->print("transposon_zip_file: { class: File, path: " . $t->{'zip_file'} . "}\n");
+    $cfh->print("transposon_zip_file: { class: File, path: " . $t->{'file'} . "}\n");
 
     my $step2_input_files = [];
 
@@ -336,7 +396,7 @@ foreach my $t (@$transposons) {
     $cfh->open(">$step4_config_path") || die "unable to write to $step4_config_path";
     $cfh->print($STEPS_H->{'step4'}->{'config'});
     # add transposon_zip_file
-    $cfh->print("transposon_zip_file: { class: File, path: " . $t->{'zip_file'} . "}\n");
+    $cfh->print("transposon_zip_file: { class: File, path: " . $t->{'file'} . "}\n");
 
     # step4 master file
     $m_fhs->{'step4'}->print(" - { melt_config_file: { class: File, path: $step4_config }, input_files: [");
@@ -360,6 +420,40 @@ foreach my $t (@$transposons) {
     
 }
 
+# --------------------------------------------
+# write per-transposon MELT-Del config files
+# --------------------------------------------
+
+$m_fhs->{'step2'}->print("del_transposons:\n");
+
+foreach my $t (@$del_transposons) {
+
+    # step 2 del
+    my $step2_del_config = "step-2-del-" . $t->{'name'} . ".yml";
+    my $step2_del_config_path = File::Spec->catfile($config_out, $step2_del_config);
+    my $cfh = FileHandle->new();
+    $cfh->open(">$step2_del_config_path") || die "unable to write to $step2_del_config_path";
+
+    # step2 master file
+    $m_fhs->{'step2'}->print(" - { melt_config_file: { class: File, path: $step2_del_config }, input_files: [");
+
+    # step2 template
+    $cfh->print($STEPS_H->{'step2'}->{'del_config'});
+
+    # add me_bed_file
+    $cfh->print("me_bed_file: { class: File, path: " . $t->{'file'} . " }\n");
+
+    my $step2_del_input_files = [];
+    my $del_tsv_files = &$get_step1_files($t->{'name'}, ['del.tsv']);
+    push(@$step2_del_input_files, @$del_tsv_files);
+    &$print_file_list($cfh, 'tsv_files', $step2_del_input_files, $DOCKER_OUTPUT_DIR);
+
+    # step2 master file
+    my @step2_files = map { File::Spec->catfile($TOIL_INPUT_DIR, $_); } @$step2_del_input_files;
+    &$print_comma_delim_file_list($m_fhs->{'step2'}, 'input_files', \@step2_files, '');
+    $m_fhs->{'step2'}->print("]}\n");
+}
+
 # close master filehandles
 map { $_->close() } values %$m_fhs; 
 
@@ -370,10 +464,14 @@ my $files_copied = {};
 
 # keyword-based substitutions
 my $cwl_subs = {
-    'COVERAGE_CWL_FILE' => $COVERAGE_METHODS->{$options->{'coverage_method'}},
     'DOCKER_IMAGE_URI' => $options->{'docker_image_uri'},
     'DOCKER_OUTPUT_DIR' => $DOCKER_OUTPUT_DIR,
 };
+
+# select step1 and step2 files based on coverage method and whether to run MELT-Deletion
+my $step2_key = $options->{'run_melt_deletion'} ? 'yes' : 'no';
+my $step1_key = join(':', $options->{'coverage_method'}, $step2_key);
+$cwl_subs->{'COVERAGE_CWL_FILE'} = $STEP1_FILES->{$step1_key};
 
 # copy CWL file, performing keyword substitutions as needed
 my $copy_cwl_file = sub {
@@ -402,6 +500,7 @@ my $copy_cwl_file = sub {
 };
 
 foreach my $step (@$STEPS) {
+    next if (($step->{'name'} =~ /del$/) && (!$options->{'run_melt_deletion'}));
     foreach my $file ($step->{'cwl'}, @{$step->{'files'}}) {
 	next if (defined($files_copied->{$file}));
 	my $from_path = File::Spec->catfile($cwl_dir, $file);
@@ -418,6 +517,11 @@ foreach my $step (@$STEPS) {
 # create helper script(s)
 # --------------------------------------------
 
+# copy group analysis workaround script
+my $workaround_from_path = File::Spec->catfile($options->{'cloud_melt_home'}, 'bin', $GROUP_ANALYSIS_WORKAROUND_SCRIPT);
+my $workaround_to_path = File::Spec->catfile($options->{'workflow_dir'}, $GROUP_ANALYSIS_WORKAROUND_SCRIPT);
+&run_sys_command("cp $workaround_from_path $workaround_to_path");
+
 # create run-workflow.sh
 my $run_file = "run-workflow.sh";
 my $run_path = File::Spec->catfile($options->{'workflow_dir'}, $run_file);
@@ -427,9 +531,19 @@ $rfh->print("#!/bin/bash\n\n");
 $rfh->print("export RUNNER='toil-cwl-runner --retryCount 0'\n\n");
 
 foreach my $step (@$STEPS) {
+    next if (($step->{'name'} =~ /del$/) && (!$options->{'run_melt_deletion'}));
     my $sname = $step->{'name'};
     my $cwl = $step->{'cwl'};
     my $conf_path = File::Spec->catfile($CONFIG_DIR, "${sname}.yml");
+
+    # group analysis workaround, run once for each ME type
+    if ($step->{'name'} eq 'step2') {
+	foreach my $me_name (map {$_->{'name'}} @$transposons) {
+	    $rfh->print("# ${me_name}/group analysis workaround - ensures deterministic output from GroupAnalysis step\n");
+	    $rfh->print(File::Spec->catfile(".", $GROUP_ANALYSIS_WORKAROUND_SCRIPT) . " ${me_name} .\n\n");
+	}
+    }
+
     $rfh->print("# $sname\n");
     $rfh->print("time \$RUNNER ");
     $rfh->print("--jobStore '" . $options->{'toil_jobstore'} . "' ");
@@ -465,8 +579,11 @@ sub check_parameters {
   }
 
   ## check that a valid coverage_method is specified
-  if (!defined($COVERAGE_METHODS->{$options->{'coverage_method'}})) {
-      die($options->{'coverage_method'} . " is not a valid input for --coverage_method");
+  my $cov_method = $options->{'coverage_method'};
+  my $melt_del = $options->{'run_melt_deletion'} ? 'yes' : 'no';
+  my $cov_key = join(':', $cov_method, $melt_del);
+  if (!defined($STEP1_FILES->{$cov_key})) {
+      die("--run_melt_deletion=$melt_del is not supported with --coverage_method = " . $options->{'coverage_method'});
   }
 
   ## check that config_dir exists
@@ -482,9 +599,16 @@ sub check_parameters {
 
   ## check for config files in config_in
   foreach my $step (@$STEPS) {
+      next if (($step->{'name'} =~ /del$/) && (!$options->{'run_melt_deletion'}));
       my $conf_file = $step->{'config_in'};
       my $conf_path = $step->{'config_in_path'} = File::Spec->catfile($options->{'config_dir'}, $conf_file);
       die "config file $conf_path not found" if (!-e $conf_path);
+
+      if (defined($step->{'del_config_in'})) {
+	  my $del_conf_file = $step->{'del_config_in'};
+	  my $del_conf_path = $step->{'del_config_in_path'} = File::Spec->catfile($options->{'config_dir'}, $del_conf_file);
+	  die "config file $del_conf_path not found" if (!-e $del_conf_path);
+      }
   }
 
   ## check cloud_melt_home
