@@ -1,0 +1,16 @@
+ref_fasta_file:
+  class: File
+  path: /opt/MELTv2.1.5/reference/hs37d5.fa
+genes_bed_file: 
+  class: File
+  path: /opt/MELTv2.1.5/add_bed_files/1KGP_Hg19/hg19.genes.bed
+excluded_chromosomes: hs37d5/NC_007605
+transposon_zip_files: 
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/LINE1_MELT.zip }
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/ALU_MELT.zip }
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/SVA_MELT.zip }
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/1KGP_Hg19/HERVK_MELT.zip }
+me_bed_files:
+  - { class: File, path: /opt/MELTv2.1.5/add_bed_files/1KGP_Hg19/LINE1.deletion.bed }
+  - { class: File, path: /opt/MELTv2.1.5/add_bed_files/1KGP_Hg19/AluY.deletion.filtered.bed }
+min_coverage: 4
