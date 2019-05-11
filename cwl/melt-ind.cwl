@@ -15,7 +15,7 @@ requirements:
       - $(inputs.dr_bam_file)
       - $(inputs.fastq_file)
 
-baseCommand: ["java", "-Xmx6G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "IndivAnalysis"]
+baseCommand: ["java", "-Xmx6G", "-jar", "/opt/MELT-v2.0.5-r38-v4.jar", "IndivAnalysis"]
 
 stdout: melt-ind-stdout.txt
 stderr: melt-ind-stderr.txt
