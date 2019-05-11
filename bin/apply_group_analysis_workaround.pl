@@ -10,8 +10,8 @@
 #
 # 1. Make a backup copy of each .tmp.bed file.
 # 2. Sort the .tmp.bed files by name.
-# 3. Concatenate the .tmp.bed files in that order to produce a new file, all.tmp.bed.
-# 4. Replace one of the original .tmp.bed files with all.tmp.bed
+# 3. Concatenate the .tmp.bed files in that order to produce a new file, <me_name>.all.tmp.bed.
+# 4. Replace one of the original .tmp.bed files with <me_name>.all.tmp.bed
 # 5. Truncate all of the other .tmp.bed files to zero length.
 # 
 # This ensures that MELT GroupAnalysis will process the samples in the order
@@ -20,13 +20,14 @@
 # be consistent.)
 
 use strict;
-use Filehandle;
+use FileHandle;
 use File::Spec;
 
 ## globals
-my $USAGE = "Usage: $0 tmp_bed_dir";
+my $USAGE = "Usage: $0 me_name tmp_bed_dir";
 
 ## input
+my $me_name = shift || die $USAGE;
 my $dir = shift || die $USAGE;
 die "couldn't find specified directory - $dir" if (!-e $dir);
 die "specified path ($dir) is not a directory" if (!-d $dir);
@@ -35,7 +36,7 @@ die "specified path ($dir) is not a directory" if (!-d $dir);
 
 # read .tmp.bed files in current directory
 opendir(RD, $dir);
-my @bed_files = grep(/\.tmp\.bed$/, readdir(RD));
+my @bed_files = grep(/\.${me_name}\.tmp\.bed$/, readdir(RD));
 closedir(RD);
 my $nbf = scalar(@bed_files);
 print STDERR "INFO - read $nbf .tmp.bed file(s) from $dir\n";
@@ -52,8 +53,8 @@ my @sorted_bed_files = sort @bed_files;
 # DEBUG
 print STDERR "sorted_bed_files=\n" . join("\n", @sorted_bed_files) . "\n";
 
-# 3. Concatenate the .tmp.bed files in that order to produce a new file, all.tmp.bed.
-my $all_tmp_bed = "all.tmp.bed";
+# 3. Concatenate the .tmp.bed files in that order to produce a new file, <me_name>.all.tmp.bed.
+my $all_tmp_bed = $me_name . ".all.tmp.bed";
 my $all_tmp_bed_path = File::Spec->catfile($dir, $all_tmp_bed);
 die "$all_tmp_bed_path already exists" if (-e $all_tmp_bed_path);
 my $afh = FileHandle->new();
@@ -70,7 +71,7 @@ foreach my $bf (@sorted_bed_files) {
 }
 $afh->close();
 
-# 4. Replace one of the original .tmp.bed files with all.tmp.bed
+# 4. Replace one of the original .tmp.bed files with <me_name>.all.tmp.bed
 my $to_path = File::Spec->catfile($dir, $sorted_bed_files[0]);
 &run_sys_command("cp $all_tmp_bed_path $to_path", 1);
 shift(@sorted_bed_files);
