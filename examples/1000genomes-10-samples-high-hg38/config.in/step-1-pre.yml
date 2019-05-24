@@ -5,9 +5,11 @@ genes_bed_file:
   class: File
   path: /opt/MELTv2.1.5/add_bed_files/Hg38/Hg38.genes.bed
 transposon_zip_files: 
-  - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/ALU_MELT.zip }
-  - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/HERVK_MELT.zip }
   - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/LINE1_MELT.zip }
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/ALU_MELT.zip }
   - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/SVA_MELT.zip }
+  - { class: File, path: /opt/MELTv2.1.5/me_refs/Hg38/HERVK_MELT.zip }
+me_bed_files:
+  - { class: File, path: /opt/MELTv2.1.5/add_bed_files/Hg38/LINE1.deletion.bed }
 min_coverage: 30
 read_length: 150
