@@ -1,0 +1,10 @@
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3239486/NA12829.final.cram
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3243162/NA12830.final.cram
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3239487/NA12842.final.cram
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3239488/NA12843.final.cram
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3239331/NA12872.final.cram
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3239332/NA12873.final.cram
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3239333/NA12874.final.cram
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3239334/NA12878.final.cram
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3239489/NA12889.final.cram
+http://s3.amazonaws.com/1000genomes/1000G_2504_high_coverage/data/ERR3239490/NA12890.final.cram
