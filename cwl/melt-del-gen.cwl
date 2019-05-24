@@ -7,6 +7,11 @@ requirements:
     tmpdirMin: 20000
     outdirMin: 5000
     coresMin: 1
+  InlineJavascriptRequirement: {}
+  InitialWorkDirRequirement:
+    listing:
+      - $(inputs.reads_bam_file)
+      - $(inputs.reads_bai_file)
 
 baseCommand: ["java", "-Xmx2G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "Deletion-Genotype"]
 
@@ -19,8 +24,8 @@ inputs:
     inputBinding:
       position: 4
       prefix: -bamfile
-    secondaryFiles:
-     - .bai
+  reads_bai_file:
+    type: File
   me_bed_file:
     type: File
     inputBinding:
@@ -54,7 +59,14 @@ outputs:
     type: stdout
   melt_gen_stderr:
     type: stderr
-  tsv_file:
+  del_tsv_file:
     type: File
     outputBinding: 
       glob: "*.tsv"
+      outputEval: |
+        ${
+          var bed_file = inputs.me_bed_file.basename;
+          var new_suffix = bed_file.replace(/\.deletion(\.filtered)?\.bed$/, '.del.tsv');
+          self[0].basename = inputs.reads_bam_file.basename.replace(/\.bam$/, "." + new_suffix);
+          return self[0];
+        }
