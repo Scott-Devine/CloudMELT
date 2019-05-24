@@ -1,0 +1,51 @@
+
+# Rough outline for running the pipeline
+
+# create pipeline tarball
+./create_pipeline.sh
+
+# add AWS key
+ssh-add ~/.ssh/jc_kp1.pem
+
+# start cluster (for single-sample test)
+toil launch-cluster jc-tcm2 --leaderNodeType t2.medium --zone us-east-1a --keyPairName jc_kp1 --nodeTypes i3.large -w 1
+
+# copy workflow tarball to cluster
+toil rsync-cluster -z us-east-1a jc-tcm2 melt-workflow-del.tar.gz :/root/
+
+# set up worker nodes
+# run docker login on leader node
+#aws ecr get-login --region us-east-1 --no-include-email
+toil ssh-cluster -z us-east-1a jc-tcm2
+docker login ...
+
+toil rsync-cluster -z us-east-1a jc-tcm2 :/root/.docker/config.json ./
+# for each worker node:
+scp config.json core@worker_node_1_public_ip
+# use hg19 setup script for hg19 jobs, hg38 script for hg38 jobs
+scp ../../bin/setup-worker-node-hg19.sh core@worker_node_1_public_ip
+ssh core@worker_node_1_public_ip './setup-worker-node-hg19.sh'
+
+# ssh to cluster, untar workflow, edit run script, run run script
+toil ssh-cluster -z us-east-1a jc-tcm2
+cd /root/
+tar xzvf melt-workflow-del.tar.gz
+cd melt-workflow-del
+
+# move all files back to home directory (ensures that SSD will be used on the worker nodes)
+mv * ../
+cd ../
+
+# edit run-workflow.sh as needed
+# run pipeline in the background, saving stdout and stderr
+./run-workflow.sh > run.out 2> run.err &
+
+# when done collect desired results into a tarball and download it
+# on the leader node e.g.,
+tar czvf results.tar.gz *.vcf *.bed *pre_geno*.tsv
+# then on local host copy the results tarball back:
+toil rsync-cluster -z us-east-1a jc-tcm2 :/root/results.tar.gz ./
+
+# when results have been retrieved/verified, shut down the cluster
+toil destroy-cluster jc-tcm2 --zone us-east-1a 
+
