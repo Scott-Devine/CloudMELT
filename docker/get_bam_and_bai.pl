@@ -50,7 +50,7 @@ sub run_sys_command {
   print STDERR "running - $cmd\n";
   system($cmd);
 
-  # check for errors, optionaly halt if any are found
+  # check for errors, optional halt if any are found
   my $err = undef;
   if ($? == -1) {
     $err = "failed to execute: $!";
