@@ -16,13 +16,28 @@ my $ref_fasta = shift;
 
 ## main program
 
+my $is_s3_uri = 0;
+
+# check for S3 native URI
+if ($bam_or_cram_uri =~ /^s3:/) {
+    $is_s3_uri = 1;
+} 
+
 # 1. retrieve BAM or CRAM file referenced by $bam_or_cram_uri
-&run_sys_command("curl -O $bam_or_cram_uri", 1);
+if ($is_s3_uri) {
+    &run_sys_command("aws s3 cp $bam_or_cram_uri ./", 1);
+} else {
+    &run_sys_command("curl -O $bam_or_cram_uri", 1);
+}
 
 # 2. if BAM, check for corresponding .bai file
 my($basename) = ($bam_or_cram_uri =~ /\/([^\/]+)$/);
 if ($basename =~ /\.bam$/) {
-    &run_sys_command("curl -O ${bam_or_cram_uri}.bai", 0);
+    if ($is_s3_uri) {
+	&run_sys_command("aws s3 cp ${bam_or_cram_uri}.bai ./", 0);
+    } else {
+	&run_sys_command("curl -O ${bam_or_cram_uri}.bai", 0);
+    }
 }
 elsif ($basename =~ /\.cram$/) {
     die "can't convert CRAM to BAM without reference FASTA" if (!defined($ref_fasta));
