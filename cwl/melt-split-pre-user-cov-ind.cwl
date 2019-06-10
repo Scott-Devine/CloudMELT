@@ -12,6 +12,7 @@ inputs:
     type: File
     secondaryFiles:
       - .fai
+  s3_bucket_uri: string
   transposon_zip_files:
     type:
       type: array
@@ -63,10 +64,17 @@ steps:
           type: string
           inputBinding:
             position: 1
+            prefix: --bam_or_cram_uri
         ref_fasta_file:
           type: File
           inputBinding:
             position: 2
+            prefix: --ref_fasta
+        s3_bucket_uri:
+          type: string
+          inputBinding:
+            position: 3
+            prefix: --s3_bucket_uri
       outputs:
        reads_bam_file:
           type: File
@@ -79,6 +87,7 @@ steps:
     in:
       reads_bam_uri: reads_bam_uri
       ref_fasta_file: ref_fasta_file
+      s3_bucket_uri: s3_bucket_uri
     out: [reads_bam_file, reads_bai_file]
 
   preprocess:
