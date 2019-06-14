@@ -15,7 +15,8 @@ inputs:
     type: File
     secondaryFiles:
       - .fai
-  s3_bam_bucket_uri: string
+  s3_bam_bucket_uri: string?
+  s3_output_bucket_uri: string?
   transposon_files:
     type:
       type: array
@@ -49,7 +50,7 @@ steps:
             position: 2
             prefix: --ref_fasta
         s3_bam_bucket_uri:
-          type: string
+          type: string?
           inputBinding:
             position: 3
             prefix: --s3_bucket_uri
@@ -69,7 +70,7 @@ steps:
     out: [reads_bam_file, reads_bai_file]
 
   group:
-    run: melt-gen.cwl
+    run: melt-gen-and-upload.cwl
     scatter: transposon_file
     in:
       reads_bam_file: get_bam_and_bai_file/reads_bam_file
@@ -80,5 +81,6 @@ steps:
       phred64: phred64
       max_reads_in_mem: max_reads_in_mem
       transposon_file: transposon_files
+      s3_output_bucket_uri: s3_output_bucket_uri
 
     out: [geno_file]

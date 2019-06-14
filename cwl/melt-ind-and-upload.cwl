@@ -4,9 +4,6 @@ class: Workflow
 requirements:
   InlineJavascriptRequirement: {}
   SubworkflowFeatureRequirement: {}
-  SchemaDefRequirement:
-    types:
-      - $import: transposon-file-type.yml
 
 inputs:
   reads_bam_file: File
@@ -39,22 +36,22 @@ outputs:
     outputSource: ind/hum_breaks_bam_file 
   pulled_bam_file:
     type: File
-    outputSource: ind/pulled_bam_files 
+    outputSource: ind/pulled_bam_file
   tmp_bed_file:
     type: File
     outputSource: ind/tmp_bed_file 
   upload_aligned_stdout:
     type: File
-    outputSource: upload/upload_aligned_stdout
+    outputSource: upload_aligned/upload_stdout
   upload_breaks_stdout:
     type: File
-    outputSource: upload/upload_breaks_stdout
+    outputSource: upload_breaks/upload_stdout
   upload_pulled_stdout:
     type: File
-    outputSource: upload/upload_pulled_stdout
+    outputSource: upload_pulled/upload_stdout
   upload_bed_stdout:
     type: File
-    outputSource: upload/upload_bed_stdout
+    outputSource: upload_bed/upload_stdout
 
 steps:
   ind:
@@ -72,7 +69,7 @@ steps:
       ref_fasta_file: ref_fasta_file
       phred64: phred64
       read_length: read_length
-      transposon_zip_file: transposon_zip-file
+      transposon_zip_file: transposon_zip_file
       max_reads_in_mem: max_reads_in_mem
     out: [aligned_bam_file, hum_breaks_bam_file, pulled_bam_file, tmp_bed_file]
 

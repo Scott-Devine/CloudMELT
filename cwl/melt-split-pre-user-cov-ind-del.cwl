@@ -12,7 +12,8 @@ inputs:
     type: File
     secondaryFiles:
       - .fai
-  s3_bam_bucket_uri: string
+  s3_bam_bucket_uri: string?
+  s3_output_bucket_uri: string?
   transposon_zip_files:
     type:
       type: array
@@ -21,7 +22,7 @@ inputs:
     type:
       type: array
       items: File
-  min_coverage: float?
+  min_coverage: float
   bwa_used: boolean?
   excluded_chromosomes: string?
   exome_mode: boolean?
@@ -81,7 +82,7 @@ steps:
             position: 2
             prefix: --ref_fasta
         s3_bam_bucket_uri:
-          type: string
+          type: string?
           inputBinding:
             position: 3
             prefix: --s3_bucket_uri
@@ -116,7 +117,7 @@ steps:
     out: [estimated_coverage, estimated_coverage_file]
 
   ind:
-    run: melt-ind.cwl
+    run: melt-ind-and-upload.cwl
     scatter: transposon_zip_file
     in:
       reads_bam_file: get_bam_and_bai_file/reads_bam_file
@@ -133,10 +134,11 @@ steps:
       phred64: phred64
       read_length: read_length
       max_reads_in_mem: max_reads_in_mem
+      s3_output_bucket_uri: s3_output_bucket_uri
     out: [aligned_bam_file, hum_breaks_bam_file, pulled_bam_file, tmp_bed_file]
 
   del:
-    run: melt-del-gen.cwl
+    run: melt-del-gen-and-upload.cwl
     scatter: me_bed_file
     in:
       reads_bam_file: get_bam_and_bai_file/reads_bam_file
@@ -145,4 +147,5 @@ steps:
       me_bed_file: me_bed_files
       expected_insert_size: expected_insert_size
       max_reads_in_mem: max_reads_in_mem
+      s3_output_bucket_uri: s3_output_bucket_uri
     out: [del_tsv_file]
