@@ -84,7 +84,11 @@ my $STEPS = [
 	     'mosdepth.cwl',
 	     'melt-cov-user.cwl',
 	     'melt-ind.cwl',
-	     'melt-del-gen.cwl']
+	     'melt-ind-and-upload.cwl',
+	     'melt-del-gen.cwl',
+	     'melt-del-gen-and-upload.cwl',
+	     'upload.cwl'
+	    ]
     },
     # MELT-Split (and MELT-Deletion) step 2
     { 
@@ -109,6 +113,8 @@ my $STEPS = [
 	    [ 'melt-split-step-3b.cwl',
 	      'melt-split-gen.cwl',
 	      'melt-gen.cwl',
+	      'melt-gen-and-upload.cwl',
+	      'upload.cwl',
 	      'transposon-file-type.yml',
 	      'step-input-type.yml']
     },
