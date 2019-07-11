@@ -38,9 +38,9 @@ inputs:
     inputBinding:
       position: 1
       prefix: -c
-  bwa_used:
+  bwa_aln_used:
     type: boolean?
-    default: true
+    default: false
     inputBinding:
       position: 2
       prefix: -a
