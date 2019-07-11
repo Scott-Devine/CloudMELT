@@ -19,7 +19,7 @@ inputs:
       type: array
       items: File
   min_coverage: float?
-  bwa_used: boolean?
+  bwa_aln_used: boolean?
   excluded_chromosomes: string?
   exome_mode: boolean?
   min_contig_len: int?
@@ -118,7 +118,7 @@ steps:
       ref_fasta_file: ref_fasta_file
       transposon_zip_file: transposon_zip_files
       estimated_coverage: mosdepth_coverage/estimated_coverage
-      bwa_used: bwa_used
+      bwa_aln_used: bwa_aln_used
       excluded_chromosomes: excluded_chromosomes
       min_contig_len: min_contig_len
       exome_mode: exome_mode
