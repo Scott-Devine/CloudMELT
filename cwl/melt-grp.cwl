@@ -24,9 +24,9 @@ stdout: melt-grp-stdout.txt
 stderr: melt-grp-stderr.txt
 
 inputs:
-  bwa_used:
+  bwa_aln_used:
     type: boolean?
-    default: true
+    default: false
     inputBinding:
       position: 2
       prefix: -a
