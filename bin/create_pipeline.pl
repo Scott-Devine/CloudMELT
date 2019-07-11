@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-create_pipeline.pl - Create a CloudMELT pipeline to run a MELT-Split analysis on AWS EC2.
+create_pipeline.pl - Create a CloudMELT pipeline to run a MELT-Split and MELT-Deletion analysis on AWS EC2.
 
 =head1 SYNOPSIS
 
@@ -16,13 +16,14 @@ create_pipeline.pl - Create a CloudMELT pipeline to run a MELT-Split analysis on
          --run_melt_deletion
        [ --sample_regex='([A-Z0-9]+)\.mapped'
          --cloud_melt_home=/path/to/CloudMELT
+         --retry_count=2
          ]
 
 =back
 
 =head1 DESCRIPTION
 
-Creates a CloudMELT pipeline to run a MELT-Split analysis on AWS EC2.
+Creates a CloudMELT pipeline to run a MELT-Split and MELT-Deletion analysis on AWS EC2.
 
 =head1 CONTACT
 
@@ -42,6 +43,7 @@ use Pod::Usage;
 ## globals
 # --------------------------------------------
 my $DEFAULT_SAMPLE_REGEX = '([A-Z0-9]+)\.mapped';
+my $DEFAULT_RETRY_COUNT = 2;
 my $TOIL_INPUT_DIR = "../";
 my $DOCKER_OUTPUT_DIR = "/melt";
 my $CONFIG_DIR = "config";
@@ -148,6 +150,7 @@ my $options = {};
 	    "run_melt_deletion!",
 	    "sample_regex=s",
 	    "cloud_melt_home=s",
+	    "retry_count=i",
             "help|h",
             "man|m") || pod2usage();
 
@@ -534,7 +537,7 @@ my $run_path = File::Spec->catfile($options->{'workflow_dir'}, $run_file);
 my $rfh = FileHandle->new();
 $rfh->open(">$run_path") || die "couldn't write to $run_path";
 $rfh->print("#!/bin/bash\n\n");
-$rfh->print("export RUNNER='toil-cwl-runner --retryCount 0'\n\n");
+$rfh->print("export RUNNER='toil-cwl-runner --retryCount " . $options->{'retry_count'} . "'\n\n");
 
 foreach my $step (@$STEPS) {
     next if (($step->{'name'} =~ /del$/) && (!$options->{'run_melt_deletion'}));
@@ -627,6 +630,7 @@ sub check_parameters {
 
   ## defaults
   $options->{'sample_regex'}= $DEFAULT_SAMPLE_REGEX if (!defined($options->{'sample_regex'}));
+  $options->{'retry_count'}= $DEFAULT_RETRY_COUNT if (!defined($options->{'retry_count'}));
 
 }
 
