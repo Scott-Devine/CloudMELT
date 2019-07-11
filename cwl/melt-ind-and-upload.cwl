@@ -13,7 +13,7 @@ inputs:
     secondaryFiles: [".bai"]
   fastq_file: File
   estimated_coverage: float
-  bwa_used: boolean?
+  bwa_aln_used: boolean?
   excluded_chromosomes: string?
   min_contig_len: int?
   exome_mode: boolean?
@@ -62,7 +62,7 @@ steps:
       dr_bam_file: dr_bam_file
       fastq_file: fastq_file
       estimated_coverage: estimated_coverage
-      bwa_used: bwa_used
+      bwa_aln_used: bwa_aln_used
       excluded_chromosomes: excluded_chromosomes
       min_contig_len: min_contig_len
       exome_mode: exome_mode
