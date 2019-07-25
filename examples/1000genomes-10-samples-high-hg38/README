@@ -26,8 +26,8 @@ toil rsync-cluster -z us-east-1a jc-tcm2 :/root/.docker/config.json ./
 # for each worker node:
 scp config.json core@worker_node_1_public_ip
 # use hg19 setup script for hg19 jobs, hg38 script for hg38 jobs
-scp ../../bin/setup-worker-node-hg19.sh core@worker_node_1_public_ip
-ssh core@worker_node_1_public_ip './setup-worker-node-hg19.sh'
+scp ../../bin/setup-worker-node-hg38.sh core@worker_node_1_public_ip
+ssh core@worker_node_1_public_ip './setup-worker-node-hg38.sh'
 
 # ssh to cluster, untar workflow, edit run script, run run script
 toil ssh-cluster -z us-east-1a jc-tcm1
