@@ -61,12 +61,6 @@ my $STEP1_FILES = {
     'user:yes' => 'melt-split-pre-user-cov-ind-del.cwl'
 };
 
-# step2 file indexed on whether to run MELT-Deletion (yes or no)
-my $STEP2_FILES = {
-    'no' => 'melt-grp.cwl',
-    'yes' => 'melt-grp-del-merge.cwl',
-};
-
 # list of workflow steps and associated files
 my $STEPS = [
     # MELT-Split (and MELT-Deletion) step 1
