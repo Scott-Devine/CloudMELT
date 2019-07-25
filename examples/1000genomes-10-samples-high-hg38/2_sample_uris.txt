@@ -1,3 +1,4 @@
-ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR323/ERR3239334/NA12878.final.cram
-ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR323/ERR3239333/NA12874.final.cram
+s3://1000genomes/1000G_2504_high_coverage/data/ERR3239334/NA12878.final.cram
+s3://1000genomes/1000G_2504_high_coverage/data/ERR3239333/NA12874.final.cram
+
 
