@@ -607,7 +607,7 @@ sub check_parameters {
       my $conf_path = $step->{'config_in_path'} = File::Spec->catfile($options->{'config_dir'}, $conf_file);
       die "config file $conf_path not found" if (!-e $conf_path);
 
-      if (defined($step->{'del_config_in'})) {
+      if ($options->{'run_melt_deletion'} && defined($step->{'del_config_in'})) {
 	  my $del_conf_file = $step->{'del_config_in'};
 	  my $del_conf_path = $step->{'del_config_in_path'} = File::Spec->catfile($options->{'config_dir'}, $del_conf_file);
 	  die "config file $del_conf_path not found" if (!-e $del_conf_path);
