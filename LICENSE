@@ -1,0 +1,89 @@
+﻿Mobile Element Locator Tool (MELT) is free for academic use. If you are requesting MELT for commercial purposes, please contact us at (410) 706-3362 or ott@umaryland.edu for additional licensing options.
+
+
+SOFTWARE LICENSE AGREEMENT
+FOR ACADEMIC NON-COMMERCIAL RESEARCH PURPOSES ONLY
+
+This Software License Agreement (“Agreement”) is made between the University of Maryland, Baltimore (“UMB”), a constituent institution of the University of System of Maryland (which is a public corporation and an instrumentality of the State of Maryland) and the LICENSEE and is effective at the date the downloading is completed (“EFFECTIVE DATE”).
+
+WHEREAS, LICENSEE desires to license the PROGRAM, as defined hereinafter, and UMB wishes to have this PROGRAM utilized in the public interest, subject only to the royalty-free, nonexclusive, nontransferable license rights of the United States Government pursuant to 48 CFR 52.227-14; and
+
+WHEREAS, UMB is willing to permit LICENSEE to use the PROGRAM on the following terms and conditions.
+
+NOW, THEREFORE, in consideration of the promises and covenants made herein, the parties hereto agree as follows:
+
+1. DEFINITIONS
+“PROGRAM” shall mean copyright in the object code and source code (not provided) known as MELT (UMB ref. no. SD-2014-153) and related documentation, if any, as they exist on the EFFECTIVE DATE and can be downloaded from http://melt.igs.umaryland.edu  on the EFFECTIVE DATE.
+
+2. LICENSE
+
+2.1 Grant. Subject to the terms of this Agreement, UMB hereby grants to LICENSEE, solely for its academic non-commercial and internal research purposes, a non-exclusive, non-transferable license to download, install, operate and execute the PROGRAM.
+
+The PROGRAM cannot be reverse engineered, decompiled, or disassembled, except and only to the extent that applicable law expressly permits or as agreed in writing and duly executed by representatives of both parties. LICENSEE may not modify, alter, or create derivative works of the PROGRAM in any manner. LICENSEE may not rent, lease, loan, sublicense, distribute or transfer the PROGRAM or any of the data produced by the PROGRAM to any third party, nor use it for commercial, public, time-sharing or service bureau use. LICENSEE shall keep the PROGRAM confidential, and may use it only as permitted by this Agreement. For the avoidance of doubt, citing the PROGRAM in publications resulting from academic use is permitted by this Agreement.  [0]LICENSEE shall store and maintain the PROGRAM with the same degree of care as its own proprietary information, but not less than reasonable diligence and care.
+
+Without limiting the foregoing, the LICENSEE may apply the PROGRAM to import, interface and/or otherwise pipeline data owned by LICENSEE and/or third parties who are licensing such data to LICENSEE; provided that LICENSEE’s use of such data, inputted into or generated from the PROGRAM, is solely for its academic, non-commercial and internal research purposes only. For clarification, research sponsored by non-commercial organizations is not a commercial use under the terms of this Agreement.
+
+2.2 No Sublicensing or Additional Rights. LICENSEE shall not sublicense or distribute the PROGRAM, in whole or in part, without prior written permission from UMB. LICENSEE shall ensure that all of its users agree to the terms of this Agreement. LICENSEE further agrees that it shall not put the PROGRAM on a network, server, or other similar technology that may be accessed by anyone other than the LICENSEE and its employees and users who have agreed to the terms of this Agreement.
+
+2.3 License Limitations. Nothing in this Agreement shall be construed to confer any rights upon LICENSEE by implication, estoppel, or otherwise to any computer software, trademark, intellectual property, or patent rights of UMB, or of any other entity, except as expressly granted herein. LICENSEE agrees that the PROGRAM, in whole or part, shall not be used for any commercial purpose, including without limitation, as the basis of a commercial software or hardware product or to provide services. LICENSEE further agrees that the PROGRAM shall not be copied or otherwise adapted in order to circumvent the need for obtaining a license for use of the PROGRAM. 
+
+2.4 UMB shall be under no obligation whatsoever to: (i) provide maintenance or support for the PROGRAM; or (ii) to notify LICENSEE of bug fixes, patches, or updates (collectively, "Update") to the PROGRAM (if any). If, at its sole discretion, UMB makes an Update available to LICENSEE and UMB does not separately enter into a written license agreement with LICENSEE relating to such Update, then it shall be deemed incorporated into the PROGRAM and subject to this AGREEMENT.
+
+2.5 LICENSEE acknowledges that he or she may be required to obtain and maintain licenses to any open source programs incorporated in or utilized by the PROGRAM. If LICENSEE uses the PROGRAM in conjunction with any open source programs, LICENSEE must ensure such use does not (a) grant, or purport to grant, any rights to the UMB intellectual property rights in the PROGRAM; (b) in any way restrict, or purport to restrict, UMB’s abilities to protect its intellectual property rights in the PROGRAM; or (c) create, or purport to create, any obligations by UMB with respect to the PROGRAM. By way of example and not of limitation, LICENSEE may not, without UMB’s consent, use or distribute a new application which contains code from the PROGRAM and open source programs, including but not limited to libraries, if the open source program license requires any modifications or combinations to be made freely available. “Open source programs” refers generally to software programs which are available for use, modification, and distribution without charge.
+
+2.6 The SOFTWARE was developed, in part, under funding from the National Institutes of Health and the United States Government consequently retains certain rights as follows: the United States Government has been granted for itself and others acting on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the SOFTWARE to reproduce, prepare derivative works, and perform publicly and display publicly. 
+
+3. OWNERSHIP OF INTELLECTUAL PROPERTY
+LICENSEE acknowledges that title to the PROGRAM shall remain with UMB. The PROGRAM is marked with the following UMB copyright notice and notice of attribution to contributors. LICENSEE shall retain such notice on all copies. LICENSEE agrees to include appropriate attribution if any results obtained from use of the PROGRAM are included in any publication.
+Copyright © 2014 by University of Maryland, Baltimore – All rights reserved.
+
+Notice of attribution: The MELT program was made available through the generosity of faculty at the Institute for Genome Sciences at the University of Maryland, Baltimore.
+
+LICENSEE shall not use any trademark or trade name of UMB, or any variation, adaptation, or abbreviation of such marks or trade names, or any names of officers, faculty, students, employees, or agents of UMB except as stated above for attribution purposes.
+
+4. INDEMNIFICATION
+
+4.1 LICENSEE shall indemnify, defend, and hold harmless UMB, and their respective officers, faculty, students, employees, associated investigators and agents, and their respective successors, heirs and assigns (“Indemnitees”), against any liability, damage, loss, or expense (including reasonable attorney’s fees and expenses) incurred by or imposed upon any of the Indemnitees in connection with any claims, suits, actions, demands or judgments arising out of any theory of liability (including, without limitation, actions in the form of tort, warranty, or strict liability and regardless of whether such action has any factual basis) pursuant to any right or license granted under this Agreement.
+
+4.2 LICENSEE assumes all liability for damages that may arise from its use of the PROGRAM. LICENSEE has the duty to prevent catastrophic loss related to use of the PROGRAM, including the responsibility to maintain and backup all data obtained and all programs used in conjunction with the PROGRAM. UMB and any of its employees, agents, heirs, or assigns will not be liable to the LICENSEE for any loss, claim or demand made by the LICENSEE, or made against the LICENSEE by any other party, due to or arising from the use of the PROGRAM by the LICENSEE.
+
+5. NO REPRESENTATIONS OR WARRANTIES
+THE PROGRAM IS DELIVERED AS IS. UMB MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND CONCERNING THE PROGRAM OR THE COPYRIGHT, EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, WHETHER OR NOT DISCOVERABLE. UMB EXTENDS NO WARRANTIES OF ANY KIND AS TO PROGRAM CONFORMITY WITH WHATEVER USER MANUALS OR OTHER LITERATURE MAY BE ISSUED FROM TIME TO TIME.
+
+IN NO EVENT SHALL UMB OR ITS RESPECTIVE DIRECTORS, OFFICERS, EMPLOYEES, AFFILIATED INVESTIGATORS AND AFFILIATES BE LIABLE FOR INCIDENTAL OR CONSEQUENTIAL DAMAGES OF ANY KIND, INCLUDING, WITHOUT LIMITATION, ECONOMIC DAMAGES OR INJURY TO PROPERTY AND LOST PROFITS, REGARDLESS OF WHETHER UMB SHALL BE ADVISED, SHALL HAVE OTHER REASON TO KNOW, OR IN FACT SHALL KNOW OF THE POSSIBILITY OF THE FOREGOING.
+
+6. ASSIGNMENT
+This Agreement is personal to LICENSEE and any rights or obligations assigned by LICENSEE without the prior written consent of UMB shall be null and void.
+
+7. MISCELLANEOUS
+
+7.1 Export Control. LICENSEE gives assurance that it will comply with all United States export control laws and regulations controlling the export of the PROGRAM, including, without limitation, all Export Administration Regulations of the United States Department of Commerce. Among other things, these laws and regulations prohibit, or require a license for, the export of certain types of software to specified countries.
+
+7.2 Termination. This AGREEMENT shall remain in effect for an initial term of one (1) year from the date of acceptance. Thereafter, this AGREEMENT shall automatically renew for additional one-year periods unless and until either party provides prior written notice to the other party of its intention to terminate. This AGREEMENT may otherwise be terminated at any time by either party on thirty (30) days written notice to the other party. Upon termination, RECIPIENT INVESTIGATOR shall immediately cease using the SOFTWARE, and return to UMB, or destroy, all copies of the SOFTWARE, and provide UMB with written certification of compliance. Termination shall not relieve RECIPIENT INVESTIGATOR from obligations arising prior to such termination.
+
+7.3 Survival. Any provision of this Agreement which contemplates performance or observance subsequent to any termination or expiration of this Agreement shall survive any termination or expiration of this Agreement and continue in full force and effect.
+
+7.4 Notice. Any notices under this Agreement shall be in writing, shall specifically refer to this Agreement, and shall be sent by hand, recognized national overnight courier,  confirmed electronic mail, or registered or certified mail, postage prepaid, return receipt requested. All notices under this Agreement shall be deemed effective upon receipt.
+
+7.5 Amendment and Waiver; Entire Agreement. This Agreement may be amended, supplemented, or otherwise modified only by means of a written instrument signed by all parties. Any waiver of any rights or failure to act in a specific instance shall relate only to such instance and shall not be construed as an agreement to waive any rights or fail to act in any other instance, whether or not similar. This Agreement constitutes the entire agreement among the parties with respect to its subject matter and supersedes prior agreements or understandings between the parties relating to its subject matter.
+
+7.6 Binding Effect; Headings. This Agreement shall be binding upon and inure to the benefit of the parties and their respective permitted successors and assigns. All headings are for convenience only and shall not affect the meaning of any provision of this Agreement.
+
+7.7 Governing Law. This Agreement shall be construed, governed, interpreted and applied in accordance with the laws of the State of Maryland, U.S.A., without regard to the principles of conflict of laws.
+
+By acquiring MELT I hereby affirm that I am a person eighteen (18) years of age or older and that I possess the legal authority to act on behalf of LICENSEE. If I acquire MELT and I do not have the legal authority to act on behalf of LICENSEE, I understand that I am personally liable for any breach of any of the terms of this Agreement.
+
+
+
+
+
+
+
+{00039190-8}	1
+
+
+
+
+
+
+
