@@ -25,13 +25,6 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
    you may need to ask your AWS administrator to grant you a number of IAM privileges before 
    you will be able to launch AWS clusters with Toil.  
   
-   **NOTE FOR IGS USERS:** You may already have an AWS account with an AWS Access Key ID and AWS
-   Secret Access Key provided by your AWS administrator. In this case simply omit the relevant
-   steps from "Preparing your AWS environment." You will probably still need to subscribe to 
-   the Container Linux by CoreOS AMI and may also need to generate an RSA key pair if you do
-   not already have one. The IAM AWS permissions required to run Toil workflows are 
-   enumerated/discussed in https://jira.igs.umaryland.edu/browse/ENG-3589.
- 
 2. A local installation of the AWS command line tools (AWS CLI)  
    See [https://aws.amazon.com/cli/][aws_cli] for details.
  
@@ -41,8 +34,6 @@ distribute CWL-encoded MELT jobs to the worker nodes in that cluster.
    least the following Toil "extras" to enable support for running CWL workflows on Amazon 
    EC2: `aws,mesos,cwl`  
   
-   **NOTE FOR IGS USERS:** Toil has been installed on IGS RHEL 7 machines at ??? (TODO)
-
 4. Familiarity with the [MELT][melt] software.
   
 [aws_cli]: https://aws.amazon.com/cli/
@@ -71,13 +62,8 @@ Set an environment variable, CLOUD_MELT_HOME, to the location of the downloaded 
 user@local_machine$ export CLOUD_MELT_HOME=/home/username/CloudMELT
 ```
 
-**NOTE FOR IGS USERS:** The CloudMELT git repo can be found in /local/projects-t3/DEVINElab/CloudMELT:
-```
-export CLOUD_MELT_HOME=/local/projects-t3/DEVINElab/CloudMELT
-```
-
-[rel_page]: https://github.com/jonathancrabtree/CloudMELT/releases
-[melt_github]: https://github.com/jonathancrabtree/CloudMELT
+[rel_page]: https://github.com/Scott-Devine/CloudMELT/releases
+[melt_github]: https://github.com/Scott-Devine/CloudMELT
 
 ### 2. Create a local working directory
 
@@ -326,7 +312,6 @@ user@local_machine$ scp config.json core@<aws_instance_public_ip>:
 user@local_machine$ scp $CLOUD_MELT_HOME/bin/setup-worker-node.sh core@<aws_instance_public_ip>:
 user@local_machine$ ssh core@<aws_instance_public_ip> './setup-worker-node.sh'
 ```
-TODO - add script to run setup steps in parallel for larger clusters - the Docker pull can be slow.
 
 ### 9. Uncompress tarball (on Toil leader node)
 
@@ -357,7 +342,7 @@ proceeding with step 2 that the `run-workflow.sh` script has been updated accord
 As the workflow runs messages will be printed to the terminal as Toil launches and completes 
 jobs. One can also ssh directly to the worker nodes and use `top` and/or `ps` to see what 
 part of the pipeline is running. On a cluster of this size the example 10 genome analysis 
-should take around 2.5 hours to run and cost less than $1.00.
+should take around 2.5 hours to run.
 
 __NOTE:__ Running a pipeline as a background process has not yet been tested, so for now it
 is recommended that the `ssh-cluster` and subsequent `run-workflow.sh` commands be run from
@@ -408,7 +393,7 @@ directly from the AWS console (though this should not be necessary.)
 
 # Reproducibility
 
-Recent versions (v2.0.5-v2.1.5) of MELT can produce slightly different output depending on the
+Some versions (v2.0.5-v2.1.5) of MELT can produce slightly different output depending on the
 order in which the individual samples' .bed files are processed in step 2 (GroupAnalysis).
 The end user does not have direct control over the order in which these files are processed
 and it can differ from machine to machine, or in the case of running on AWS, from VM to VM.
@@ -430,10 +415,6 @@ still exist.)
 After making this change step 2 can be run and any subsequent analysis of the same inputs
 with the same .tmp.bed concatenation order should produce produce the same final result.
 
-TODO - add a script and/or `create_pipeline.pl` option to automate this step.
-
-TODO - sort `all.tmp.bed` so that the insertions with the most (by sample and/or read count) support appear first
-
 
 # Building/exporting CloudMELT Docker container
 
@@ -445,8 +426,6 @@ repository.
 
 [gh_docker]: docker/
 
-TODO - add option to specify MELT Docker URI to `create_pipeline.pl`  
-TODO - add MELT Dockerfile for hg38-based analyses
 
 # Running MELT-Deletion on AWS EC2
 
