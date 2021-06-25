@@ -50,8 +50,6 @@ foreach my $bf (@bed_files) {
 
 # 2. Sort the .tmp.bed files by name.
 my @sorted_bed_files = sort @bed_files;
-# DEBUG
-print STDERR "sorted_bed_files=\n" . join("\n", @sorted_bed_files) . "\n";
 
 # 3. Concatenate the .tmp.bed files in that order to produce a new file, <me_name>.all.tmp.bed.
 my $all_tmp_bed = $me_name . ".all.tmp.bed";

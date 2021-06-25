@@ -429,7 +429,8 @@ repository.
 
 # Running MELT-Deletion on AWS EC2
 
-`create_pipeline.pl` currently supports only MELT-Split
+`create_melt_del_pipeline.pl` can be used instead of `create_pipeline.pl` to run a
+MELT-Deletion analysis with no accompanying MELT-Split analysis.
 
 
 # Troubleshooting
