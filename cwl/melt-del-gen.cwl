@@ -13,7 +13,7 @@ requirements:
       - $(inputs.reads_bam_file)
       - $(inputs.reads_bai_file)
 
-baseCommand: ["java", "-Xmx2G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "Deletion-Genotype"]
+baseCommand: ["java", "-Xmx2G", "-jar", "/opt/MELTv2.1.5fast/MELT.jar", "Deletion-Genotype"]
 
 stdout: melt-del-stdout.txt
 stderr: melt-del-stderr.txt

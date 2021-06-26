@@ -17,7 +17,7 @@ requirements:
         return all_files;
        }
 
-baseCommand: ["java", "-Xmx2G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "MakeVCF"]
+baseCommand: ["java", "-Xmx2G", "-jar", "/opt/MELTv2.1.5fast/MELT.jar", "MakeVCF"]
 
 stdout: melt-vcf-stdout.txt
 stderr: melt-vcf-stderr.txt

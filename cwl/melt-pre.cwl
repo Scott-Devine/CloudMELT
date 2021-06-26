@@ -12,7 +12,7 @@ requirements:
       - $(inputs.reads_bam_file)
       - $(inputs.reads_bai_file)
 
-baseCommand: [java, "-Xmx2G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "Preprocess"]
+baseCommand: [java, "-Xmx2G", "-jar", "/opt/MELTv2.1.5fast/MELT.jar", "Preprocess"]
 stdout: melt-pre-stdout.txt
 stderr: melt-pre-stderr.txt
 

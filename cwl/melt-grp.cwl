@@ -19,7 +19,7 @@ requirements:
         return all_files;
        }
 
-baseCommand: ["java", "-Xmx4G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "GroupAnalysis"]
+baseCommand: ["java", "-Xmx4G", "-jar", "/opt/MELTv2.1.5fast/MELT.jar", "GroupAnalysis"]
 stdout: melt-grp-stdout.txt
 stderr: melt-grp-stderr.txt
 

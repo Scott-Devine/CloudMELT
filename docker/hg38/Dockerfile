@@ -2,10 +2,10 @@ FROM openjdk:8-jre-slim
 MAINTAINER Jonathan Crabtree <jcrabtree@som.umaryland.edu>
 
 # install MELT into /opt:
-COPY MELTv2.1.5.tar.gz /opt/
+COPY MELTv2.1.5fast.tar.gz /opt/
 RUN cd /opt && \
-  tar xzvf MELTv2.1.5.tar.gz && \
-  rm MELTv2.1.5.tar.gz
+  tar xzvf MELTv2.1.5fast.tar.gz && \
+  rm MELTv2.1.5fast.tar.gz
 
 # install Bowtie2 into /opt
 COPY bowtie2-2.3.4.3-linux-x86_64.zip /opt/
@@ -23,8 +23,8 @@ RUN apt-get install -y curl python-pip nodejs
 RUN pip install virtualenv && virtualenv ~/venv && pip install cwlref-runner
 
 # hg38 reference FASTA
-COPY GRCh38_full_analysis_set_plus_decoy_hla.fa /opt/MELTv2.1.5/reference/
-COPY GRCh38_full_analysis_set_plus_decoy_hla.fa.fai /opt/MELTv2.1.5/reference/
+COPY GRCh38_full_analysis_set_plus_decoy_hla.fa /opt/MELTv2.1.5fast/reference/
+COPY GRCh38_full_analysis_set_plus_decoy_hla.fa.fai /opt/MELTv2.1.5fast/reference/
 
 # mosdepth
 RUN curl -LO https://github.com/brentp/mosdepth/releases/download/v0.2.5/mosdepth && chmod ugo+x mosdepth && mv mosdepth /usr/local/bin/

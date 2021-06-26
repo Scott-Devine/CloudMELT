@@ -17,7 +17,7 @@ requirements:
       - $(inputs.transposon_file.pre_geno)
       - $(inputs.transposon_file.zip)
 
-baseCommand: ["java", "-Xmx2G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "Genotype"]
+baseCommand: ["java", "-Xmx2G", "-jar", "/opt/MELTv2.1.5fast/MELT.jar", "Genotype"]
 
 stdout: melt-gen-stdout.txt
 stderr: melt-gen-stderr.txt

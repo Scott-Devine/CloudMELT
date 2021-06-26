@@ -76,7 +76,7 @@ steps:
   melt_del_merge:
     run:
       class: CommandLineTool
-      baseCommand: ["java", "-Xmx2G", "-jar", "/opt/MELTv2.1.5/MELT.jar", "Deletion-Merge"]
+      baseCommand: ["java", "-Xmx2G", "-jar", "/opt/MELTv2.1.5fast/MELT.jar", "Deletion-Merge"]
 
       stdout: melt-del-merge-stdout.txt
       stderr: melt-del-merge-stderr.txt
